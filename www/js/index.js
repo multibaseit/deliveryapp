@@ -610,7 +610,7 @@ var DA={
 		},
 	//Close delivery screen (cancel)
 		cancelDelivery:function(){
-			DA.showMessage('confirm','Information have entered on this screen will be discarded',function(){
+			DA.showMessage('confirm','Information you have entered for this delivery will be discarded',function(){
 				DA.loadManifest();
 			});
 		},
