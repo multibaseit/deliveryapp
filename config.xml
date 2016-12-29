@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.multibaseit.deliveryapp" version="1.0.0" versionCode="1" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>DeliveryApp</name>
+    <description>
+        Delivery drivers app - manifest, delivery form, time and travel, and GPS location
+    </description>
+    <author email="mattc@mbase.com.au" href="http://www.multibaseit.com.au">
+        Matt Carey, Multibase
+    </author>
+	<platform name="android">
+		<icon src="img/ldpi.png" density="ldpi" />
+		<icon src="img/mdpi.png" density="mdpi" />
+		<icon src="img/hdpi.png" density="hdpi" />
+		<icon src="img/xhdpi.png" density="xhdpi" />
+		<icon src="img/xxhdpi.png" density="xxhdpi" />
+		<icon src="img/xxxhdpi.png" density="xxxhdpi" />
+	</platform>
+    <content src="index.html" />
+    <access origin="*" />
+	<allow-navigation href="index.html" />
+	<allow-intent href="http://*/*" />
+	<allow-intent href="https://*/*" />
+	<plugin name="cordova-plugin-whitelist" />
+	<plugin name="cordova-plugin-camera" />
+	<plugin name="cordova-plugin-geolocation" />
+	<plugin name="cordova-plugin-file-transfer" />
+	<plugin name="cordova-plugin-vibration" />
+	<plugin name="cordova-plugin-network-information" />
+	<plugin name="cordova-plugin-device" />
+</widget>

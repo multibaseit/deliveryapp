@@ -1,0 +1,34 @@
+/*iOS STATUS BAR*/
+
+
+body.ios{
+padding:20px 0 0 0;
+box-sizing:border-box;
+}
+body.ios:after{
+content:'';
+display:block;
+position:fixed;
+top:0;
+left:0;
+right:0;
+height:20px;
+z-index:100;
+background:whitesmoke;
+}
+body.ios div.overlay,
+body.ios a.close_button{
+top:20px;
+}
+body.ios div.overlay > a.close_button{
+top:0;
+}
+
+
+
+/*MANIFEST LIST*/
+
+body.ios div.manifest_filter form > span.fa{
+height:1.75em;
+line-height:1.75em;
+}

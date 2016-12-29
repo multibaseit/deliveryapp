@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+		<meta name="msapplication-tap-highlight" content="no" />
+		<meta name="format-detection" content="telephone=no">
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.gstatic.com https://*.googleapis.com data: gap: 'unsafe-inline' https://ssl.gstatic.com https://www.multibaseit.com.au; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; media-src *; script-src 'self' https://maps.googleapis.com; img-src 'self' *; connect-src *;" />
+		<link rel="stylesheet" type="text/css" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/index_mobile.css" />
+		<link rel="stylesheet" type="text/css" href="css/index_ios.css" />
+		<link rel="stylesheet" type="text/css" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
+        <title>Deliveries</title>
+    </head>
+    <body>
+		<div class="app_layout">
+			
+			<!--LOGIN-->
+			<div class="app_page login_page">
+				<div class="login_layout">
+					<div class="login_logo">
+						<img src="img/640x640.png"/>
+					</div>
+					<form class="login_form" action="index.html" method="post">
+						<h2>Delivery Driver</h2>
+						<div class="form_field">
+							<label for="user">Driver ID</label>
+							<input placeholder="Driver ID" id="user" name="user" type="text" value="Driver"/>
+						</div>
+						<div class="form_field">
+							<label for="user">Password</label>
+							<input placeholder="Password" id="pass" name="pass" type="password" value="Password"/>
+						</div>
+						<div class="form_field form_buttons">
+							<input id="login_submit" name="login_submit" type="submit" value="Login"/>
+						</div>
+					</form>
+				</div>
+			</div>
+			
+			<!--DELIVERY LIST-->
+			<div class="app_page manifest_page">
+				<div class="manifest_header">
+					<h2>My deliveries</h2>
+					<div class="manifest_update">
+						<span class="fa fa-refresh fa-lg"></span>Last updated<span class="update_time"></span>
+					</div>
+					<div class="manifest_filter clear_after">
+						<form class="search_form" action="index.html" method="post">
+							<div class="form_field">
+								<input placeholder="Search" id="search_value" name="search_value" type="text"/>
+							</div>
+							<span class="fa fa-search"></span>
+							<a class="search_clear">
+								<span class="fa fa-close"></span>
+							</a>
+						</form>
+					</div>
+					<div class="manifest_toggle">
+						<span class="fa fa-eye-slash toggle_hide"></span>
+						<span class="toggle_hide">Hide Completed</span>
+						<span class="fa fa-eye toggle_show"></span>
+						<span class="toggle_show">Show Completed</span>
+					</div>
+				</div>
+				<ul class="manifest_list">
+					<li class="manifest_item clear_after -data-" data-manifest-index="-data-" data-manifest-geocode="-data-">
+						<span class="manifest_map">
+							<span class="fa fa-map-marker fa-lg"></span>
+						</span>
+						<span class="manifest_client">
+							<span class="manifest_client_name">-data- -data-</span>
+							<span class="manifest_client_id">(-data-)</span>
+						</span>
+						<span class="manifest_address">
+							<span class="manifest_street">-data-</span>
+						</span>
+						<span class="manifest_time">
+							<span class="manifest_delivery_time">
+								<span class="fa fa-clock-o"></span>-data-
+							</span>
+							<span class="manifest_instructions">-data-</span>
+						</span>
+					</li>
+				</ul>
+				<a class="close_button">
+					<span class="fa fa-close"></span>
+				</a>
+			</div>
+			
+			<!--DELIVERY FORM-->
+			<div class="app_page delivery_page">
+				<div class="delivery_layout">
+					<form class="delivery_form" action="index.html" method="post">
+						<div class="delivery_details">
+							<h2>-data- -data-</h2>
+							<div class="delivery_date">-data- -data- Invoice -data-</div>
+						</div>
+						<div class="delivery_location">
+							<span class="fa fa-map-marker"></span>
+							<span class="location_check">Checking your location...</span>
+							<span class="location_captured">Your location has been captured</span>
+							<span class="location_error">Your location cannot be verified</span>
+						</div>
+						<div class="delivery_items">
+							<div class="delivery_item clear_after">
+								<div class="item_text">
+									<span class="item_code">-data-</span>
+									<span class="item_name">-data-</span>
+								</div>
+								<div class="item_quantity clear_after">
+									<div class="item_picker delivery_quantity" data-picker-max="-data-">
+										<span class="picker_active">
+											<span class="active_number"></span>
+										</span>
+										<span class="picker_label">Delivered</span>
+										<span class="picker_less">
+											<span class="fa fa-caret-left"></span>
+										</span>
+										<span class="picker_quantity">-data-</span>
+										<span class="picker_more">
+											<span class="fa fa-caret-right"></span>
+										</span>
+										<input id="item_-data-_delivery_value" name="item_-data-_delivery_value" type="hidden" value="-data-"/>
+									</div>
+									<div class="item_picker return_quantity">
+										<span class="picker_active">
+											<span class="active_number"></span>
+										</span>
+										<span class="picker_label">Returned</span>
+										<span class="picker_less">
+											<span class="fa fa-caret-left"></span>
+										</span>
+										<span class="picker_quantity">0</span>
+										<span class="picker_more">
+											<span class="fa fa-caret-right"></span>
+										</span>
+										<input id="item_-data-_return_value" name="item_-data-_return_value" type="hidden" value="0"/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form_field form_buttons clear_after">
+							<label for="delivery_sign_value">Signature</label>
+							<input class="hidden_field" id="delivery_sign_value" name="delivery_sign_value" data-required="true" type="text"/>
+							<label for="delivery_photo_value">Photo</label>
+							<input class="hidden_field" id="delivery_photo_value" name="delivery_photo_value" data-required="true" type="text" value="No photo captured"/>
+							<label for="delivery_annotation_value">Photo annotation</label>
+							<input class="hidden_field" id="delivery_annotation_value" name="delivery_annotation_value" type="text" value="No annotation entered"/>
+							<label for="delivery_invoice_value">Delivery invoice</label>
+							<input class="hidden_field" id="delivery_invoice_value" name="delivery_invoice_value" type="text"/>
+							<label for="delivery_index_value">Delivery index</label>
+							<input class="hidden_field" id="delivery_index_value" name="delivery_index_value" type="text"/>
+							<label for="delivery_geocode_value">Current geocode</label>
+							<input class="hidden_field" id="delivery_geocode_value" name="delivery_geocode_value" type="text" value="No geocode captured"/>
+							<label for="delivery_timestamp_value">Timestamp</label>
+							<input class="hidden_field" id="delivery_timestamp_value" name="delivery_timestamp_value" type="text"/>
+							<div class="button_layout">
+								<button id="delivery_sign" name="delivery_sign">
+									<span class="fa fa-pencil"></span>Sign
+								</button>
+							</div>
+							<div class="button_layout">
+								<button id="delivery_photo" name="delivery_photo">
+									<span class="fa fa-camera"></span>Photo
+								</button>
+							</div>
+							<div class="button_layout">
+								<button id="delivery_submit" name="delivery_submit">
+									<span class="fa fa-save"></span>Save
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<a class="close_button">
+					<span class="fa fa-close"></span>
+				</a>
+			</div>
+							
+			<!--MAP OVERLAY-->
+			<div class="map_page overlay">
+				<div class="map_layout">
+					<div id="map_inner"></div>
+				</div>
+				<div class="overlay_icon map_icon">
+					<span class="fa fa-map-marker fa-2x"></span>
+					<span class="fa fa-refresh fa-spin fa-2x"></span>
+				</div>
+				<a class="close_button">
+					<span class="fa fa-close"></span>
+				</a>
+			</div>
+			
+			<!--SIGNATURE OVERLAY-->
+			<div class="signature_page overlay">
+				<div class="signature_layout canvas_layout">
+					<canvas id="signature_image" height="100" width="100"></canvas>
+				</div>
+				<div class="overlay_icon">
+					<span class="fa fa-pencil fa-2x"></span>
+				</div>
+				<a class="close_button">
+					<span class="fa fa-close"></span>
+				</a>
+			</div>
+			
+			<!--PHOTO OVERLAY-->
+			<div class="photo_page overlay">
+				<div class="photo_layout canvas_layout">
+					<canvas id="photo_image" height="100" width="100"></canvas>
+				</div>
+				<div class="overlay_icon">
+					<span class="fa fa-camera fa-2x"></span>
+				</div>
+				<a class="close_button">
+					<span class="fa fa-close"></span>
+				</a>
+			</div>
+						
+			<!--ERROR OVERLAY-->
+			<div class="error_page overlay">
+				<div class="overlay_layout">
+					<div class="overlay_inner">
+						<span class="icon_error fa fa-exclamation-circle fa-2x"></span>
+						<span class="icon_warning fa fa-info-circle fa-2x"></span>
+						<span class="icon_notification fa fa-check-circle fa-2x"></span>
+						<span class="icon_confirm fa fa-question-circle fa-2x"></span>
+						<div class="error_text"></div>
+						<div class="confirm_buttons clear_after">
+							<a class="confirm_button confirm_no">
+								<span class="icon_confirm fa fa-thumbs-o-down fa-2x"></span>
+								<span>CANCEL</span>
+							</a>
+							<a class="confirm_button confirm_yes">
+								<span class="icon_confirm fa fa-thumbs-o-up fa-2x"></span>
+								<span>OK</span>
+							</a>
+						</div>
+					</div>
+				</div>
+				<a class="close_button">
+					<span class="fa fa-close"></span>
+				</a>
+			</div>
+			
+			<noscript><p>Javascript must be enabled to use this application.</p></noscript>
+		</div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="js/signature_pad.min.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBY1waJYH5-37J203QwZOD_QykCh7SN0VY"></script>
+    </body>
+</html>
