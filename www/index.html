@@ -10,42 +10,40 @@
 		<link rel="stylesheet" type="text/css" href="css/index_mobile.css" />
 		<link rel="stylesheet" type="text/css" href="css/index_ios.css" />
 		<link rel="stylesheet" type="text/css" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
-        <title>Deliveries</title>
+        <title>DeliveryApp</title>
     </head>
     <body>
 		<div class="app_layout">
 			
 			<!--LOGIN-->
 			<div class="app_page login_page">
-				<div class="login_layout">
-					<div class="login_logo">
-						<img src="img/640x640.png"/>
-					</div>
-					<form class="login_form" action="index.html" method="post">
-						<h2>Delivery Driver</h2>
-						<div class="form_field">
-							<label for="user">Driver ID</label>
-							<input placeholder="Driver ID" id="user" name="user" type="text" value="Driver"/>
-						</div>
-						<div class="form_field">
-							<label for="user">Password</label>
-							<input placeholder="Password" id="pass" name="pass" type="password" value="Password"/>
-						</div>
-						<div class="form_field form_buttons">
-							<input id="login_submit" name="login_submit" type="submit" value="Login"/>
-						</div>
-					</form>
+				<div class="login_logo">
+					<img src="img/640x640.png"/>
 				</div>
+				<form class="login_form" action="index.html" method="post">
+					<h2>Delivery Driver</h2>
+					<div class="form_field">
+						<label for="user">Driver ID</label>
+						<input placeholder="Driver ID" id="user" name="user" type="text" value="Driver"/>
+					</div>
+					<div class="form_field">
+						<label for="user">Password</label>
+						<input placeholder="Password" id="pass" name="pass" type="password" value="Password"/>
+					</div>
+					<div class="form_field form_buttons">
+						<input id="login_submit" name="login_submit" type="submit" value="Login"/>
+					</div>
+				</form>
 			</div>
 			
-			<!--DELIVERY LIST-->
-			<div class="app_page manifest_page">
-				<div class="manifest_header">
+			<!--LIST-->
+			<div class="app_page list_page">
+				<div class="list_header">
 					<h2>My deliveries</h2>
-					<div class="manifest_update">
+					<div class="list_update">
 						<span class="fa fa-refresh fa-lg"></span>Last updated<span class="update_time"></span>
 					</div>
-					<div class="manifest_filter clear_after">
+					<div class="list_filter clear_after">
 						<form class="search_form" action="index.html" method="post">
 							<div class="form_field">
 								<input placeholder="Search" id="search_value" name="search_value" type="text"/>
@@ -56,30 +54,30 @@
 							</a>
 						</form>
 					</div>
-					<div class="manifest_toggle">
+					<div class="list_toggle">
 						<span class="fa fa-eye-slash toggle_hide"></span>
 						<span class="toggle_hide">Hide Completed</span>
 						<span class="fa fa-eye toggle_show"></span>
 						<span class="toggle_show">Show Completed</span>
 					</div>
 				</div>
-				<ul class="manifest_list">
-					<li class="manifest_item clear_after -data-" data-manifest-index="-data-" data-manifest-geocode="-data-">
-						<span class="manifest_map">
+				<ul class="list_items">
+					<li class="list_item clear_after -data-" data-item-index="-data-" data-item-geocode="-data-">
+						<span class="item_map_link">
 							<span class="fa fa-map-marker fa-lg"></span>
 						</span>
-						<span class="manifest_client">
-							<span class="manifest_client_name">-data- -data-</span>
-							<span class="manifest_client_id">(-data-)</span>
+						<span class="item_client">
+							<span class="item_client_name">-data- -data-</span>
+							<span class="item_client_id">(-data-)</span>
 						</span>
-						<span class="manifest_address">
-							<span class="manifest_street">-data-</span>
+						<span class="item_address">
+							<span class="item_street">-data-</span>
 						</span>
-						<span class="manifest_time">
-							<span class="manifest_delivery_time">
+						<span class="item_time">
+							<span class="item_delivery_time">
 								<span class="fa fa-clock-o"></span>-data-
 							</span>
-							<span class="manifest_instructions">-data-</span>
+							<span class="item_instructions">-data-</span>
 						</span>
 					</li>
 				</ul>
@@ -88,91 +86,89 @@
 				</a>
 			</div>
 			
-			<!--DELIVERY FORM-->
-			<div class="app_page delivery_page">
-				<div class="delivery_layout">
-					<form class="delivery_form" action="index.html" method="post">
-						<div class="delivery_details">
-							<h2>-data- -data-</h2>
-							<div class="delivery_date">-data- -data- Invoice -data-</div>
-						</div>
-						<div class="delivery_location">
-							<span class="fa fa-map-marker"></span>
-							<span class="location_check">Checking your location...</span>
-							<span class="location_captured">Your location has been captured</span>
-							<span class="location_error">Your location cannot be verified</span>
-						</div>
-						<div class="delivery_items">
-							<div class="delivery_item clear_after">
-								<div class="item_text">
-									<span class="item_code">-data-</span>
-									<span class="item_name">-data-</span>
+			<!--FORM-->
+			<div class="app_page form_page">
+				<form class="item_form" action="index.html" method="post">
+					<div class="item_form_header">
+						<h2>-data- -data-</h2>
+						<div class="item_form_date">-data- -data- Invoice -data-</div>
+					</div>
+					<div class="location_header">
+						<span class="fa fa-map-marker"></span>
+						<span class="location_check">Checking your location...</span>
+						<span class="location_captured">Your location has been captured</span>
+						<span class="location_error">Your location cannot be verified</span>
+					</div>
+					<div class="form_items">
+						<div class="form_item clear_after">
+							<div class="item_text">
+								<span class="item_code">-data-</span>
+								<span class="item_name">-data-</span>
+							</div>
+							<div class="item_quantity clear_after">
+								<div class="item_picker delivery_quantity" data-picker-max="-data-">
+									<span class="picker_active">
+										<span class="active_number"></span>
+									</span>
+									<span class="picker_label">Delivered</span>
+									<span class="picker_less">
+										<span class="fa fa-caret-left"></span>
+									</span>
+									<span class="picker_quantity">-data-</span>
+									<span class="picker_more">
+										<span class="fa fa-caret-right"></span>
+									</span>
+									<input id="item_-data-_delivery_value" name="item_-data-_delivery_value" type="hidden" value="-data-"/>
 								</div>
-								<div class="item_quantity clear_after">
-									<div class="item_picker delivery_quantity" data-picker-max="-data-">
-										<span class="picker_active">
-											<span class="active_number"></span>
-										</span>
-										<span class="picker_label">Delivered</span>
-										<span class="picker_less">
-											<span class="fa fa-caret-left"></span>
-										</span>
-										<span class="picker_quantity">-data-</span>
-										<span class="picker_more">
-											<span class="fa fa-caret-right"></span>
-										</span>
-										<input id="item_-data-_delivery_value" name="item_-data-_delivery_value" type="hidden" value="-data-"/>
-									</div>
-									<div class="item_picker return_quantity">
-										<span class="picker_active">
-											<span class="active_number"></span>
-										</span>
-										<span class="picker_label">Returned</span>
-										<span class="picker_less">
-											<span class="fa fa-caret-left"></span>
-										</span>
-										<span class="picker_quantity">0</span>
-										<span class="picker_more">
-											<span class="fa fa-caret-right"></span>
-										</span>
-										<input id="item_-data-_return_value" name="item_-data-_return_value" type="hidden" value="0"/>
-									</div>
+								<div class="item_picker return_quantity">
+									<span class="picker_active">
+										<span class="active_number"></span>
+									</span>
+									<span class="picker_label">Returned</span>
+									<span class="picker_less">
+										<span class="fa fa-caret-left"></span>
+									</span>
+									<span class="picker_quantity">0</span>
+									<span class="picker_more">
+										<span class="fa fa-caret-right"></span>
+									</span>
+									<input id="item_-data-_return_value" name="item_-data-_return_value" type="hidden" value="0"/>
 								</div>
 							</div>
 						</div>
-						<div class="form_field form_buttons clear_after">
-							<label for="delivery_sign_value">Signature</label>
-							<input class="hidden_field" id="delivery_sign_value" name="delivery_sign_value" data-required="true" type="text"/>
-							<label for="delivery_photo_value">Photo</label>
-							<input class="hidden_field" id="delivery_photo_value" name="delivery_photo_value" data-required="true" type="text" value="No photo captured"/>
-							<label for="delivery_annotation_value">Photo annotation</label>
-							<input class="hidden_field" id="delivery_annotation_value" name="delivery_annotation_value" type="text" value="No annotation entered"/>
-							<label for="delivery_invoice_value">Delivery invoice</label>
-							<input class="hidden_field" id="delivery_invoice_value" name="delivery_invoice_value" type="text"/>
-							<label for="delivery_index_value">Delivery index</label>
-							<input class="hidden_field" id="delivery_index_value" name="delivery_index_value" type="text"/>
-							<label for="delivery_geocode_value">Current geocode</label>
-							<input class="hidden_field" id="delivery_geocode_value" name="delivery_geocode_value" type="text" value="No geocode captured"/>
-							<label for="delivery_timestamp_value">Timestamp</label>
-							<input class="hidden_field" id="delivery_timestamp_value" name="delivery_timestamp_value" type="text"/>
-							<div class="button_layout">
-								<button id="delivery_sign" name="delivery_sign">
-									<span class="fa fa-pencil"></span>Sign
-								</button>
-							</div>
-							<div class="button_layout">
-								<button id="delivery_photo" name="delivery_photo">
-									<span class="fa fa-camera"></span>Photo
-								</button>
-							</div>
-							<div class="button_layout">
-								<button id="delivery_submit" name="delivery_submit">
-									<span class="fa fa-save"></span>Save
-								</button>
-							</div>
+					</div>
+					<div class="form_field form_buttons clear_after">
+						<label for="form_sign_value">Signature</label>
+						<input class="hidden_field" id="form_sign_value" name="form_sign_value" data-required="true" type="text"/>
+						<label for="form_photo_value">Photo</label>
+						<input class="hidden_field" id="form_photo_value" name="form_photo_value" data-required="true" type="text" value="No photo captured"/>
+						<label for="form_annotation_value">Photo annotation</label>
+						<input class="hidden_field" id="form_annotation_value" name="form_annotation_value" type="text" value="No annotation entered"/>
+						<label for="form_invoice_value">Delivery invoice</label>
+						<input class="hidden_field" id="form_invoice_value" name="form_invoice_value" type="text"/>
+						<label for="form_index_value">Delivery index</label>
+						<input class="hidden_field" id="form_index_value" name="form_index_value" type="text"/>
+						<label for="form_geocode_value">Current geocode</label>
+						<input class="hidden_field" id="form_geocode_value" name="form_geocode_value" type="text" value="No geocode captured"/>
+						<label for="form_timestamp_value">Timestamp</label>
+						<input class="hidden_field" id="form_timestamp_value" name="form_timestamp_value" type="text"/>
+						<div class="button_layout">
+							<button id="form_sign_button" name="form_sign_button">
+								<span class="fa fa-pencil"></span>Sign
+							</button>
 						</div>
-					</form>
-				</div>
+						<div class="button_layout">
+							<button id="form_photo_button" name="form_photo_button">
+								<span class="fa fa-camera"></span>Photo
+							</button>
+						</div>
+						<div class="button_layout">
+							<button id="form_submit_button" name="form_submit_button">
+								<span class="fa fa-save"></span>Save
+							</button>
+						</div>
+					</div>
+				</form>
 				<a class="close_button">
 					<span class="fa fa-close"></span>
 				</a>
