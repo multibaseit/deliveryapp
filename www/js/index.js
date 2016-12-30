@@ -137,7 +137,7 @@ var App={
 				return true;
 			}
 			if($('.login_page').hasClass('active_page')){
-				navigator.App.exitApp();
+				navigator.app.exitApp();
 				return true;
 			}
 			if($('.list_page').hasClass('active_page')){
