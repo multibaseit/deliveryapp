@@ -280,7 +280,7 @@ var App={
 				},60000);
 			//Bind close button event
 				$('.list_page > .close_button').off().on('click',function(){
-					App.showMessage('confirm',App.message.logoutPrompt,App.logOut);
+					App.showMessage('confirm',App.message.logOutPrompt,App.logOut);
 				});
 			//Bind list toggle event
 				$('.list_toggle').off().on('click',function(){
