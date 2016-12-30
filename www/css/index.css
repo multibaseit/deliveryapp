@@ -289,33 +289,33 @@ max-width:60%;
 
 
 
-/*MANIFEST LIST*/
+/*ITEM LIST*/
 
-div.manifest_header{
+div.list_header{
 display:table;
 margin:0 auto;
 }
-div.manifest_update{
+div.list_update{
 padding:0.5em 0 1em 0;
 text-align:center;
 }
-div.manifest_update span.fa{
+div.list_update span.fa{
 margin:0 0.33em 0 0;
 color:skyblue;
 }
 span.update_time{
 margin:0 0 0 0.25em;
 }
-div.manifest_filter{
+div.list_filter{
 margin:0 0 2em 0;
 }
-div.manifest_filter form{
+div.list_filter form{
 position:relative;
 }
-div.manifest_filter div.form_field{
+div.list_filter div.form_field{
 margin:0;
 }
-div.manifest_filter form > span.fa{
+div.list_filter form > span.fa{
 display:block;
 position:absolute;
 top:0;
@@ -326,7 +326,7 @@ line-height:2em;
 text-align:center;
 color:grey;
 }
-div.manifest_filter input[type=text]{
+div.list_filter input[type=text]{
 height:2em;
 padding:0.5em 2em;
 }
@@ -341,43 +341,43 @@ width:2em;
 line-height:2em;
 text-align:center;
 }
-ul.manifest_list{
+ul.list_items{
 margin:1em 0 0 0;
 padding:0;
 list-style:none;
 }
-ul.manifest_list:after{
+ul.list_items:after{
 content:'';
 display:block;
 height:1px;
 margin:-1px 0 0 0;
 background:white;
 }
-li.manifest_item{
+li.list_item{
 margin:0;
 padding:1em 0;
 list-style:none;
 border-bottom:1px solid lightgrey;
 }
-li.manifest_item > span{
+li.list_item > span{
 display:block;
 }
-span.manifest_client_name{
+span.item_client_name{
 margin:0 0.25em 0 0;
 }
-span.manifest_client_id,
-span.manifest_street,
-span.manifest_instructions{
+span.item_client_id,
+span.item_street,
+span.item_instructions{
 font-size:87.5%;
 }
-span.manifest_time{
+span.item_time{
 color:grey;
 }
-span.manifest_delivery_time,
-span.manifest_delivery_time > span.fa{
+span.item_delivery_time,
+span.item_delivery_time > span.fa{
 margin:0 0.25em 0 0;
 }
-span.manifest_map{
+span.item_map_link{
 height:2em;
 width:2em;
 float:right;
@@ -387,7 +387,12 @@ color:white;
 background:skyblue;
 border-radius:50%;
 }
-li.manifest_item.pending span.manifest_map:after{
+
+
+
+/*ITEM LIST - STATUS UPDATES*/
+
+li.list_item.pending span.item_map_link:after{
 content:'\f0ee';
 display:block;
 margin:0.25em auto 0 auto;
@@ -397,7 +402,7 @@ font-family:FontAwesome;
 font-size:87.5%;
 color:grey;
 }
-li.manifest_item.submitted span.manifest_map:after{
+li.list_item.submitted span.item_map_link:after{
 content:'\f00c';
 display:block;
 margin:0.25em auto 0 auto;
@@ -406,22 +411,22 @@ text-align:center;
 font-family:FontAwesome;
 color:skyblue;
 }
-li.manifest_item.pending span.manifest_map,
-li.manifest_item.submitted span.manifest_map{
+li.list_item.pending span.item_map_link,
+li.list_item.submitted span.item_map_link{
 background:lightgrey;
 }
 
 
 
-/*MANIFEST LIST - SEARCH RESULTS*/
+/*ITEM LIST - SEARCH RESULTS*/
 
-ul.manifest_list_filtered li{
+ul.list_items.filtered li{
 display:none;
 }
-ul.manifest_list_filtered li.manifest_item_filtered{
+ul.list_items.filtered li.filtered{
 display:block;
 }
-ul.manifest_list_filtered span.manifest_client_id:after{
+ul.list_items.filtered span.item_client_id:after{
 content:'\f0b0';
 display:inline-block;
 margin:0 0 0 0.25em;
@@ -432,9 +437,9 @@ color:red;
 
 
 
-/*MANIFEST LIST - TOGGLE*/
+/*ITEM LIST - TOGGLE*/
 
-div.manifest_toggle{
+div.list_toggle{
 text-align:center;
 }
 span.toggle_show,
@@ -444,28 +449,28 @@ font-size:75%;
 text-transform:uppercase;
 color:skyblue;
 }
-div.manifest_toggle span.fa{
+div.list_toggle span.fa{
 font-size:100%;
 color:skyblue;
 }
-div.manifest_toggle.inactive span.toggle_show,
-div.manifest_toggle.inactive span.toggle_hide{
+div.list_toggle.inactive span.toggle_show,
+div.list_toggle.inactive span.toggle_hide{
 color:lightgrey;
 }
 span.toggle_show,
-div.manifest_page.manifest_toggled span.toggle_hide,
-div.manifest_page.manifest_toggled li.manifest_item.pending,
-div.manifest_page.manifest_toggled li.manifest_item.submitted,
-div.manifest_page.manifest_toggled li.manifest_item.manifest_item_filtered.pending,
-div.manifest_page.manifest_toggled li.manifest_item.manifest_item_filtered.submitted{
+div.list_page.list_toggled span.toggle_hide,
+div.list_page.list_toggled li.list_item.pending,
+div.list_page.list_toggled li.list_item.submitted,
+div.list_page.list_toggled li.list_item.filtered.pending,
+div.list_page.list_toggled li.list_item.filtered.submitted{
 display:none;
 }
-div.manifest_page.manifest_toggled span.toggle_show{
+div.list_page.list_toggled span.toggle_show{
 display:inline-block;
 }
 
 
-/*MANIFEST LIST - MAP*/
+/*ITEM LIST - MAP*/
 
 div.map_layout{
 position:absolute;
@@ -501,12 +506,12 @@ width:100%;
 
 
 
-/*DELIVERY FORM*/
+/*ITEM FORM*/
 
-div.delivery_location{
+div.location_header{
 text-align:center;
 }
-div.delivery_location > span{
+div.location_header > span{
 margin:0 0.25em;
 font-size:75%;
 color:grey;
@@ -515,14 +520,14 @@ span.location_captured,
 span.location_error{
 display:none;
 }
-div.delivery_items{
+div.form_items{
 margin:2em 0 1em 0;
 }
-div.delivery_item{
+div.form_item{
 padding:1em 0;
 border-top:1px solid lightgrey;
 }
-div.delivery_item:first-child{
+div.form_item:first-child{
 border-top:0;
 }
 div.item_text{
@@ -535,7 +540,7 @@ margin:0 0.25em 0 0;
 div.item_quantity{
 float:right;
 }
-div.delivery_layout div.form_buttons{
+div.form_page div.form_buttons{
 margin:1em -0.5em;
 }
 div.button_layout{
@@ -567,7 +572,7 @@ max-width:100%;
 
 
 
-/*DELIVERY FORM - QUANTITY PICKERS*/
+/*ITEM FORM - QUANTITY PICKERS*/
 
 div.item_picker{
 float:left;
@@ -586,7 +591,7 @@ text-transform:uppercase;
 font-size:50%;
 background:none;
 }
-div.delivery_item:first-child span.picker_label{
+div.form_item:first-child span.picker_label{
 display:block;
 margin:-1.5em 0 0 0;
 }
@@ -637,7 +642,7 @@ background:none;
 
 
 
-/*DELIVERY FORM - SIGNATURE + PHOTO*/
+/*ITEM FORM - SIGNATURE + PHOTO*/
 
 div.signature_layout,
 div.photo_layout{

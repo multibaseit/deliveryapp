@@ -18,17 +18,17 @@ padding:2em 0;
 
 
 
-/*MANIFEST LIST*/
+/*ITEM LIST*/
 
-li.manifest_item{
+li.list_item{
 padding:1em;
 }
 
 
 
-/*DELIVERY FORM*/
+/*ITEM FORM*/
 
-div.delivery_item{
+div.form_item{
 padding:1em;
 }
 div.item_text{
@@ -45,12 +45,12 @@ float:none;
 clear:both;
 text-align:center;
 }
-div.delivery_item:first-child span.picker_label,
+div.form_item:first-child span.picker_label,
 div.item_picker span.picker_label{
 display:block;
 margin:0;
 }
-div.delivery_layout div.form_buttons{
+div.form_page div.form_buttons{
 margin:0;
 }
 div.button_layout button{

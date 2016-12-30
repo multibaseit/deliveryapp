@@ -26,9 +26,9 @@ top:0;
 
 
 
-/*MANIFEST LIST*/
+/*ITEM LIST*/
 
-body.ios div.manifest_filter form > span.fa{
+body.ios div.list_filter form > span.fa{
 height:1.75em;
 line-height:1.75em;
 }
