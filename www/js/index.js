@@ -1,32 +1,14 @@
-var DA={
+var App={
 	
 	
 	
 	//INITIALISATION
 	
-	//Initialise application
-		initialise:function(){
-			//Back button
-				document.addEventListener('backbutton',DA.handleBackButton,false);
-			//Connection state
-				document.addEventListener('online',DA.processQueue,false);
-			//iOS
-				if(/constructor/i.test(window.HTMLElement))$('body').addClass('ios');
-			//Templates
-				DA.template.manifestItem=$('.manifest_list').html().replace(/\t|\r|\n/gi,'');
-				DA.template.deliveryItem=$('.delivery_items').html().replace(/\t|\r|\n/gi,'');
-				$('.delivery_items').html('-data-');
-				DA.template.deliveryForm=$('.delivery_form').html().replace(/\t|\r|\n/gi,'');
-			//Login
-				$('.login_form').on('submit',DA.submitLogin);
-			//First page
-				DA.showPage('.login_page');
-				//DA.loadManifest();
-				//DA.buildDeliveryForm(0);
-		},
+	//Local storage name prefix
+		prefix:'da',
 	//Persistent variables
 		data:{
-			manifest:{},
+			list:{},
 			map:{},
 			picker:{},
 			signature:{},
@@ -34,6 +16,41 @@ var DA={
 		},
 	//HTML templates for repeaters
 		template:{},
+	//Text strings for prompts and alerts
+		message:{
+			logOutPrompt:'You will be logged out',
+			invalidLogin:'Please enter a valid username and password',
+			offlineUpdate:'Your manifest cannot be updated while your device is offline',
+			itemCompleted:'This delivery has been completed',
+			noItems:'You have no deliveries scheduled',
+			updateError:'Your manifest could not be updated',
+			noMapAvailable:'Maps are not available for this delivery',
+			noGeolocation:'Maps cannot be used when your device is offline or location is turned off',
+			googleError:'An error has occurred at Google Maps',
+			locationError:'Your location cannot be determined',
+			cancelForm:'Information you have entered for this delivery will be discarded',
+			incompleteForm:'Please complete this form before saving'
+		},
+	//Initialise application and show first page
+		initialise:function(){
+			//Device back button
+				document.addEventListener('backbutton',App.handleBackButton,false);
+			//Device connection state
+				document.addEventListener('online',App.processQueue,false);
+			//iOS stylesheet
+				if(/constructor/i.test(window.HTMLElement))$('body').addClass('ios');
+			//HTML templates
+				App.template.listItem=$('.list_items').html().replace(/\t|\r|\n/gi,'');
+				App.template.formItem=$('.form_items').html().replace(/\t|\r|\n/gi,'');
+				$('.form_items').html('-data-');
+				App.template.itemForm=$('.item_form').html().replace(/\t|\r|\n/gi,'');
+			//Login
+				$('.login_form').on('submit',App.submitLogin);
+			//First page
+				App.showPage('.login_page');
+				//App.loadListData();
+				//App.buildForm(0);
+		},
 	
 	
 	
@@ -69,16 +86,13 @@ var DA={
 			$('.error_page span.fa').not('.confirm_buttons span.fa').hide();
 			$('.error_page span.icon_'+type).show();
 			$('.error_text').html(text.replace(/\.\s\b/gi,'.<br/><br/>'));
-			//$('body').addClass('no_scroll');
 			if(window.navigator.vibrate&&type=='error')window.navigator.vibrate(200);
 			$('.error_page').removeClass('error confirm warning notification').addClass(type+' active_overlay').fadeIn(function(){
 				if(typeof process=='function'&&type!='confirm')(process)();
 				$(this).find('.close_button, .confirm_no').off().on('click',function(){
 					$('.error_page').removeClass('active_overlay').fadeOut();
-					//$('body').removeClass('no_scroll');
 				});
 				$(this).find('.confirm_yes').off().on('click',function(){
-					//$('body').removeClass('no_scroll');
 					(process)();
 					$('.error_page').removeClass('active_overlay').fadeOut();
 				});
@@ -123,32 +137,32 @@ var DA={
 				return true;
 			}
 			if($('.login_page').hasClass('active_page')){
-				navigator.app.exitApp();
+				navigator.App.exitApp();
 				return true;
 			}
-			if($('.manifest_page').hasClass('active_page')){
-				DA.showMessage('confirm','You will be logged out',DA.logOut);
+			if($('.list_page').hasClass('active_page')){
+				App.showMessage('confirm',App.message.logOutPrompt,App.logOut);
 				return true;
 			}
-			if($('.delivery_page').hasClass('active_page')){
-				DA.cancelDelivery();
+			if($('.form_page').hasClass('active_page')){
+				App.cancelForm();
 				return true;
 			}
 		},
 	
 	
 	
-	//LOGIN
+	//LOGIN PAGE
 	
-	//Submit login credentials
+	//Submit login form
 		submitLogin:function(){
 			var fail=false;
 			if(!$('#user').val()||!$('#pass').val())fail=true;
 			else{
-				if(DA.authenticateLogin()==true)DA.loadManifest();
+				if(App.authenticateLogin()==true)App.loadListData();
 				else fail=true;
 			}
-			if(fail)DA.showMessage('error','Please enter a valid username and password');
+			if(fail)App.showMessage('error',App.message.invalidLogin);
 			return false;
 		},
 	//Check login credentials
@@ -156,19 +170,19 @@ var DA={
 			return true;
 		},
 		logOut:function(){
-			DA.showPage('.login_page',0);
+			App.showPage('.login_page',0);
 		},
 	
 	
 	
-	//MANIFEST LIST
+	//LIST PAGE
 	
-	//Load manifest data
-		loadManifest:function(force){
+	//Load list data from server
+		loadListData:function(force){
 			if(window.navigator.onLine==true){
-				if(new Date().getTime()>parseInt(window.localStorage.getItem('da-manifest-time'))+1800000||
-					window.localStorage.getItem('da-manifest-time')==null||
-					window.localStorage.getItem('da-manifest')==null||
+				if(new Date().getTime()>parseInt(window.localStorage.getItem(App.prefix+'-update-time'))+1800000||
+					window.localStorage.getItem(App.prefix+'-update-time')==null||
+					window.localStorage.getItem(App.prefix+'-data')==null||
 					force==true){
 						$.ajax({
 							url:'https://www.multibaseit.com.au/da/manifest.aspx',
@@ -181,39 +195,39 @@ var DA={
 							},
 							timeout:10000,
 							success:function(data,status,request){
-								DA.storeLocalManifest(data);
+								App.storeLocalData(data);
 							},
 							error:function(request,status,error){
-								DA.showServerError(request,status,error);
+								App.showServerError(request,status,error);
 							}
 						});
 				}
-				else DA.buildManifestList();
+				else App.buildList();
 			}
 			else{
-				if(!$('.error_page').hasClass('active_overlay'))DA.showMessage('warning','Your manifest cannot be updated while your device is offline',DA.buildManifestList);
-				else DA.buildManifestList();
+				if(!$('.error_page').hasClass('active_overlay'))App.showMessage('warning',App.message.offlineUpdate,App.buildList);
+				else App.buildList();
 			}
 		},
-	//Store loaded manifest data 
-		storeLocalManifest:function(data){
-			window.localStorage.setItem('da-manifest',JSON.stringify(data));
-			window.localStorage.setItem('da-manifest-time',new Date().getTime());
-			DA.buildManifestList();
+	//Store loaded list data 
+		storeLocalData:function(data){
+			window.localStorage.setItem(App.prefix+'-data',JSON.stringify(data));
+			window.localStorage.setItem(App.prefix+'-update-time',new Date().getTime());
+			App.buildList();
 		},
-	//Display manifest data
-		buildManifestList:function(){
-			var m=JSON.parse(window.localStorage.getItem('da-manifest'));
+	//Generate list HTML
+		buildList:function(){
+			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
 			if(!$.isEmptyObject(m)){
 				var i=0,s,h=[],d,n=new Date();
 				n.setHours(0);
 				n.setMinutes(0);
 				n.setSeconds(0);
 				while(i<Object.keys(m).length){
-					d=DA.processDate(m[i].Delivery.DeliveryDate);
+					d=App.processDate(m[i].Delivery.DeliveryDate);
 					if(d.time>n.getTime()){
 						c=(m[i].DeliveryStatus)?(' '+m[i].DeliveryStatus.toLowerCase()):'';
-						s=DA.template.manifestItem.split('-data-');
+						s=App.template.listItem.split('-data-');
 						h.push(
 							s[0]+c+
 							s[1]+i+
@@ -229,92 +243,95 @@ var DA={
 					}
 					i++
 				}
-				$('.manifest_list').fadeIn().removeClass('manifest_list_filtered').html(h.join(''));
-			//Bind events for manifest items
-				$('.manifest_list .manifest_item').not('.pending,.submitted').each(function(){
+				$('.list_items').fadeIn().removeClass('filtered').html(h.join(''));
+			//Bind events for list items
+				$('.list_items .list_item').not('.pending,.submitted').each(function(){
 					$(this).on('click',function(){
-						DA.buildDeliveryForm($(this).attr('data-manifest-index'));
+						App.buildForm($(this).attr('data-item-index'));
 					});
-					$(this).find('.manifest_map').on('click',function(){
+					$(this).find('.item_map_link').on('click',function(){
 						event.stopPropagation();
-						DA.showMapPanel($(this).parent().attr('data-manifest-geocode'));
+						App.showMapPanel($(this).parent().attr('data-item-geocode'));
 					});
 				});
-				$('.manifest_item.pending, .manifest_item.submitted').each(function(){
+				$('.list_item.pending, .list_item.submitted').each(function(){
 					$(this).on('click',function(){
-						DA.showMessage('error','This delivery has been completed');
+						App.showMessage('error',App.message.itemCompleted);
 					});
 				});
-			//Manifest search
+			//Initialise list search
 				$('#search_value').val('');
 				$('.search_clear').hide();	
 				$('.search_form').on('submit',function(){
 					$('#search_value').blur();
 					return false;
 				});
-				$('#search_value').off().on('input',DA.filterManifestList).val('');
+				$('#search_value').off().on('input',App.filterList).val('');
 				$('.search_clear').off().on('click',function(){
 					$('#search_value').val('');
-					DA.filterManifestList();
+					App.filterList();
 				});
-			//Manifest update
-				$('.manifest_update').off().on('click',DA.forceManifestLoad);
-				$('.update_time').html(DA.lastUpdateText(parseInt(window.localStorage.getItem('da-manifest-time'))));
-				$('.manifest_update .fa').removeClass('fa-spin');
-				DA.data.manifest.timer=setInterval(function(){
-					$('.update_time').html(DA.lastUpdateText(parseInt(window.localStorage.getItem('da-manifest-time'))));
+			//Display list update time
+				$('.list_update').off().on('click',App.forceListLoad);
+				$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
+				$('.list_update .fa').removeClass('fa-spin');
+				App.data.list.timer=setInterval(function(){
+					$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
 				},60000);
-			//Ready
-				$('.manifest_toggle').off().on('click',function(){
-					if($('.manifest_item.pending,.manifest_item.submitted')[0]){
-						DA.data.manifest.toggled=!DA.data.manifest.toggled;
-						DA.toggleManifestList();
+			//Bind close button event
+				$('.list_page > .close_button').off().on('click',function(){
+					App.showMessage('confirm',App.message.logoutPrompt,App.logOut);
+				});
+			//Bind list toggle event
+				$('.list_toggle').off().on('click',function(){
+					if($('.list_item.pending,.list_item.submitted')[0]){
+						App.data.list.toggled=!App.data.list.toggled;
+						App.toggleList();
 					}
 				});
-				if(!$('.manifest_page').hasClass('active_page')){
-					if($('.error_page').hasClass('active_overlay'))DA.showPage('.manifest_page',0);
-					else DA.showPage('.manifest_page');
+				App.toggleList();
+			//Display list page
+				if(!$('.list_page').hasClass('active_page')){
+					if($('.error_page').hasClass('active_overlay'))App.showPage('.list_page',0);
+					else App.showPage('.list_page');
 				}
-				$('.manifest_page > .close_button').off().on('click',function(){
-					DA.showMessage('confirm','You will be logged out',DA.logOut);
-				});
-				DA.toggleManifestList();
-				DA.processQueue();
+			//Trigger queued form process
+				App.processQueue();
 			}
-			else if(!$('.error_page').hasClass('active_overlay'))DA.showMessage('warning','You have no scheduled deliveries');
+			else if(!$('.error_page').hasClass('active_overlay'))App.showMessage('warning',App.message.noItems);
 		},
-	//Check request result for errors
+	//Display server error message
 		showServerError:function(request,status,error){
 			var a=
 				("Request = "+request.responseText)+
 				("\nStatus = "+status)+
 				("\nError = "+error);
 			//alert(a);
-			DA.showMessage('error','Your manifest could not be updated',DA.buildManifestList);
+			App.showMessage('error',App.message.updateError,App.buildList);
 		},
 	//Force reload from server
-		forceManifestLoad:function(){
+		forceListLoad:function(){
 			if(window.navigator.onLine==true){
-				$('.manifest_list').fadeOut();
-				$('.manifest_update .fa').addClass('fa-spin');
-				DA.loadManifest(true);
+				$('.list_items').fadeOut();
+				$('.list_update .fa').addClass('fa-spin');
+				App.loadListData(true);
 			}
-			else DA.showMessage('error','Your manifest cannot be updated while your device is offline');
+			else App.showMessage('error',App.message.offlineUpdate);
 		},
-	//Search(filter) manifest list
-		filterManifestList:function(){
+	//Search(filter) list
+		filterList:function(){
 			var s=$('#search_value')[0].value.trim().toLowerCase();
 			if(s.length>1){
-				$('.manifest_list').addClass('manifest_list_filtered');
-				$('.manifest_item').each(function(){
-					if($(this).text().toLowerCase().indexOf(s)<0)$(this).removeClass('manifest_item_filtered');
-					else $(this).addClass('manifest_item_filtered');
+				$('.list_items').addClass('filtered');
+				$('.list_item').each(function(){
+					if($(this).text().toLowerCase().indexOf(s)<0)$(this).removeClass('filtered');
+					else $(this).addClass('filtered');
 				});
 				$('.search_clear').show();
 			}
 			else{
-				$('.manifest_list').removeClass('manifest_list_filtered');
-				$('.manifest_item_filtered').removeClass('manifest_item_filtered');
+				$('.list_items').removeClass('filtered');
+				$('.filtered').removeClass('filtered');
 				$('.search_clear').hide();
 			}
 		},
@@ -328,15 +345,15 @@ var DA={
 					$('.map_icon').addClass('loading');
 					$('.active_overlay').removeClass('active_overlay').hide();
 					$('.map_page').addClass('active_overlay').fadeIn();
-					$('.map_page .close_button').off().on('click',DA.hideMapPanel);
+					$('.map_page .close_button').off().on('click',App.hideMapPanel);
 					if(parseInt(destination)+''!='NaN'){
-						DA.data.map.destination=destination;
-						DA.getGeocode(DA.initialiseMap);
+						App.data.map.destination=destination;
+						App.getGeocode(App.initialiseMap);
 					}
-					else DA.showMessage('error','Maps are not available for this delivery',DA.hideMapPanel);
+					else App.showMessage('error',App.message.noMapAvailable,App.hideMapPanel);
 			}
 			else{
-				DA.showMessage('error','Maps cannot be used when your device is offline or location is turned off');
+				App.showMessage('error',App.message.noGeolocation);
 			}
 		},
 		hideMapPanel:function(){
@@ -346,9 +363,9 @@ var DA={
 		},
 	//Initialise map for directions
 		initialiseMap:function(){
-			if(!new RegExp('error','gi').test(DA.data.map.origin)){
-				a=DA.data.map.origin.split(',');
-				b=DA.data.map.destination.split(',');
+			if(!new RegExp('error','gi').test(App.data.map.origin)){
+				a=App.data.map.origin.split(',');
+				b=App.data.map.destination.split(',');
 				var o=new google.maps.LatLng(parseFloat(a[0]),parseFloat(a[1])),
 					d=new google.maps.LatLng(parseFloat(b[0]),parseFloat(b[1])),
 					r={
@@ -369,21 +386,21 @@ var DA={
 						g.setDirections(response);
 						g.setMap(m);
 					}
-					else if($('.map_page.active_overlay')[0])DA.showMessage('error','An error has occurred at Google Maps',DA.hideMapPanel);
+					else if($('.map_page.active_overlay')[0])App.showMessage('error',App.message.googleError,App.hideMapPanel);
 				});
 			}
-			else if($('.map_page.active_overlay')[0])DA.showMessage('error','Maps cannot be used when your device is offline or location is turned off',DA.hideMapPanel);
+			else if($('.map_page.active_overlay')[0])App.showMessage('error',App.message.noGeolocation,App.hideMapPanel);
 		},
-	//Get geocode from device or Google API
+	//Get geocode from device
 		getGeocode:function(process){
 			if(typeof window.navigator.geolocation==='object'){
 				window.navigator.geolocation.getCurrentPosition(
 					function(position){
-						DA.data.map.origin=position.coords.latitude+','+position.coords.longitude;
+						App.data.map.origin=position.coords.latitude+','+position.coords.longitude;
 						if(typeof process=='function')(process)();
 					},
 					function(error){
-						DA.data.map.origin='Error: '+error.message;
+						App.data.map.origin='Error: '+error.message;
 						if(typeof process=='function')(process)();
 					},
 					{
@@ -391,53 +408,53 @@ var DA={
 					}
 				);
 			}
-			else DA.showMessage('error','Your location cannot be determined');
+			else App.showMessage('error',App.message.locationError);
 		},
-	//Add geocode value to delivery form
+	//Add geocode value to form
 		setGeocodeFormValue:function(){
-			$('#delivery_geocode_value').val(DA.data.map.origin);
+			$('#form_geocode_value').val(App.data.map.origin);
 			$('.location_check').hide();
-			if(DA.data.map.origin.indexOf('Error')==0)$('.location_error').show();
+			if(App.data.map.origin.indexOf('Error')==0)$('.location_error').show();
 			else $('.location_captured').show();
 		},
-	//Toggle submitted deliveries in manifest
-		toggleManifestList:function(){
-			if(DA.data.manifest.toggled==true)$('.manifest_page').addClass('manifest_toggled');
-			else $('.manifest_page').removeClass('manifest_toggled');
-			if($.isEmptyObject($('.manifest_item.pending,.manifest_item.submitted')[0]))$('.manifest_toggle').addClass('inactive');
-			else $('.manifest_toggle').removeClass('inactive');
+	//Toggle submitted list items
+		toggleList:function(){
+			if(App.data.list.toggled==true)$('.list_page').addClass('list_toggled');
+			else $('.list_page').removeClass('list_toggled');
+			if($.isEmptyObject($('.list_item.pending,.list_item.submitted')[0]))$('.list_toggle').addClass('inactive');
+			else $('.list_toggle').removeClass('inactive');
 		},
 	
 	
 	
-	//DELIVERY FORM
+	//FORM PAGE
 	
-	//Generate HTML for delivery form
-		buildDeliveryForm:function(id){
-			//Form data
-				var m=JSON.parse(window.localStorage.getItem('da-manifest'))[id],
-				s=DA.template.deliveryForm.split('-data-'),
+	//Generate item form
+		buildForm:function(id){
+			//Get item data
+				var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'))[id],
+				s=App.template.itemForm.split('-data-'),
 				h=[];
 				h.push(
 					s[0]+m.CustomerName+
 					s[1]+m.CustomerSite+
-					s[2]+DA.processDate(m.Delivery.DeliveryDate).dateFormat+
+					s[2]+App.processDate(m.Delivery.DeliveryDate).dateFormat+
 					s[3]+m.Delivery.DeliveryTime+
 					s[4]+m.Delivery.Invoice+
-					s[5]+DA.addDeliveryItems(m.Delivery.DeliveryItems)+
+					s[5]+App.addFormItems(m.Delivery.DeliveryItems)+
 					s[6]
 				);
-				$('.delivery_form').html(h.join(''));
-			//Geocode field
-				DA.getGeocode(DA.setGeocodeFormValue);
-			//Ready
-				$('#delivery_invoice_value').val(m.Delivery.Invoice);
-				$('#delivery_index_value').val(id);
-				$('.delivery_form .picker_quantity').on('activate',DA.activateDeliveryPicker).on('click',function(){
+				$('.item_form').html(h.join(''));
+			//Populate static form data
+				App.getGeocode(App.setGeocodeFormValue);
+				$('#form_invoice_value').val(m.Delivery.Invoice);
+				$('#form_index_value').val(id);
+			//Bind events for item quantity pickers
+				$('.item_form .picker_quantity').on('activate',App.activatePicker).on('click',function(){
 					$(this).trigger('activate');
 				});
-				$('.delivery_form .picker_less').each(function(){
-					$(this).off().on('less',DA.activatePickerLess).on('stop',DA.deactivatePicker).on('touchstart mousedown',function(event){
+				$('.item_form .picker_less').each(function(){
+					$(this).off().on('less',App.activatePickerLess).on('stop',App.deactivatePicker).on('touchstart mousedown',function(event){
 						event.preventDefault();
 						$(this).trigger('less');
 					}).on('touchend mouseup',function(event){
@@ -445,8 +462,8 @@ var DA={
 						$(this).trigger('stop');
 					});
 				});
-				$('.delivery_form .picker_more').each(function(){
-					$(this).off().on('more',DA.activatePickerMore).on('stop',DA.deactivatePicker).on('touchstart mousedown',function(event){
+				$('.item_form .picker_more').each(function(){
+					$(this).off().on('more',App.activatePickerMore).on('stop',App.deactivatePicker).on('touchstart mousedown',function(event){
 						event.preventDefault();
 						$(this).trigger('more');
 					}).on('touchend mouseup',function(event){
@@ -454,24 +471,29 @@ var DA={
 						$(this).trigger('stop');
 					});
 				});
-				$('#delivery_sign').on('click',function(){
+			//Bind signature button event
+				$('#form_sign_button').off().on('click',function(){
 					$('.item_picker').removeClass('active');
-					DA.showSignaturePanel();
+					App.showSignaturePanel();
 				});
-				$('#delivery_photo').on('click',function(){
+			//Bind photo button event
+				$('#form_photo_button').off().on('click',function(){
 					$('.item_picker').removeClass('active');
-					DA.openCamera();
+					App.openCamera();
 				});
-				$('.delivery_form').on('submit',function(){
+			//Bind form + submit events
+				$('.item_form').off().on('submit',function(){
 					return false;
 				});
-				$('#delivery_submit').off().on('click',DA.submitDelivery);
-				$('.delivery_page > .close_button').off().on('click',DA.cancelDelivery);			
-				DA.showPage('.delivery_page');
+				$('#form_submit_button').off().on('click',App.submitForm);
+			//Bind close button event
+				$('.form_page > .close_button').off().on('click',App.cancelForm);
+			//Display form page
+				App.showPage('.form_page');
 		},
-	//Add delivery items to delivery form
-		addDeliveryItems:function(items){
-			var s=DA.template.deliveryItem.split('-data-'),
+	//Generate HTML for form items
+		addFormItems:function(items){
+			var s=App.template.formItem.split('-data-'),
 			h=[];
 			for(i=0;i<items.length;i++){
 				h.push(
@@ -489,8 +511,8 @@ var DA={
 			}
 			return h.join('');
 		},
-	//Activate delivery picker for data input
-		activateDeliveryPicker:function(){
+	//Activate item quantity picker for data entry
+		activatePicker:function(){
 			if(!$(this).parent().hasClass('active')){
 				$('.item_picker').removeClass('active');
 				$(this).parent().addClass('active');
@@ -500,76 +522,76 @@ var DA={
 			}
 			$('.picker_active').finish().hide();
 		},
-	//Subtract quantity from delivery picker
+	//Subtract from item picker quantity
 		activatePickerLess:function(){
 			$(this).siblings('input').val(Math.max(0,parseInt($(this).siblings('input').val())-1));
 			$(this).siblings('.picker_quantity').html($(this).siblings('input').val());
 			$(this).siblings('.picker_active').children(0).html($(this).siblings('input').val());
 			$(this).siblings('.picker_active').finish().fadeIn(0).show().delay(1000).fadeOut();
-			DA.data.picker=$(this);
-			DA.data.picker.timer=setTimeout(function(){
-				$(DA.data.picker).trigger('less');
+			App.data.picker=$(this);
+			App.data.picker.timer=setTimeout(function(){
+				$(App.data.picker).trigger('less');
 			},200);
 		},
-	//Add quantity to delivery picker
+	//Add to item picker quantity
 		activatePickerMore:function(){
 			var m=parseInt($(this).parent().attr('data-picker-max'))||99;
 			$(this).siblings('input').val(Math.min(m,parseInt($(this).siblings('input').val())+1));
 			$(this).siblings('.picker_quantity').html($(this).siblings('input').val());
 			$(this).siblings('.picker_active').children(0).html($(this).siblings('input').val());
 			$(this).siblings('.picker_active').finish().fadeIn(0).show().delay(1000).fadeOut();
-			DA.data.picker=$(this);
-			DA.data.picker.timer=setTimeout(function(){
-				$(DA.data.picker).trigger('more');
+			App.data.picker=$(this);
+			App.data.picker.timer=setTimeout(function(){
+				$(App.data.picker).trigger('more');
 			},200);
 		},
 	//Deactivate repeated addition or subtraction for picker 
 		deactivatePicker:function(){
-			clearTimeout(DA.data.picker.timer);
-			DA.data.picker.timer=null;
-			DA.data.picker=null;
+			clearTimeout(App.data.picker.timer);
+			App.data.picker.timer=null;
+			App.data.picker=null;
 		},
-	//Show signature panel for delivery form - https://github.com/szimek/signature_pad
+	//Show signature overlay for form - https://github.com/szimek/signature_pad
 		showSignaturePanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
 			$('.signature_page .close_button').off().on('click',function(){
 				$('.signature_page').fadeOut(function(){
-					if(!DA.data.signature.canvas.isEmpty()){
-						$('#delivery_sign_value').val(DA.data.signature.canvas.toDataURL());
-						DA.data.signature.canvas.clear();
-						$('#delivery_sign').parent().addClass('completed');
+					if(!App.data.signature.canvas.isEmpty()){
+						$('#form_sign_value').val(App.data.signature.canvas.toDataURL());
+						App.data.signature.canvas.clear();
+						$('#form_sign_button').parent().addClass('completed');
 					}
 					else{
-						$('#delivery_sign_value').val('');
-						$('#delivery_sign').parent().removeClass('completed');
+						$('#form_sign_value').val('');
+						$('#form_sign_button').parent().removeClass('completed');
 					}
 				});
 			});
 			$('.signature_page').addClass('active_overlay').fadeIn(function(){
-				DA.initialiseSignaturePanel();
+				App.initialiseSignaturePanel();
 			});
 		},
 	//Resize signature canvas element
 		initialiseSignaturePanel:function(){
-			DA.data.signature.canvas=document.querySelector('canvas#signature_image');
-			$(DA.data.signature.canvas).width($(document).width());
-			$(DA.data.signature.canvas).height($(document).height());
-			DA.data.signature.canvas.width=$(document).width();
-			DA.data.signature.canvas.height=$(document).height();
-			DA.data.signature.canvas=new SignaturePad(DA.data.signature.canvas);
+			App.data.signature.canvas=document.querySelector('canvas#signature_image');
+			$(App.data.signature.canvas).width($(document).width());
+			$(App.data.signature.canvas).height($(document).height());
+			App.data.signature.canvas.width=$(document).width();
+			App.data.signature.canvas.height=$(document).height();
+			App.data.signature.canvas=new SignaturePad(App.data.signature.canvas);
 		},
-	//Open camera for delivery form
+	//Open camera for form
 		openCamera:function(){
 			if(window.navigator.camera){
 				window.navigator.camera.getPicture(
 					function(filename){
-						$('#delivery_photo_value').val(filename);
-						$('#delivery_photo').parent().addClass('completed');
-						DA.showCameraPanel();
+						$('#form_photo_value').val(filename);
+						$('#form_photo_button').parent().addClass('completed');
+						App.showCameraPanel();
 					},
 					function(error){
-						DA.showMessage('error',error);
-						$('#delivery_photo').parent().removeClass('completed');
+						App.showMessage('error',error);
+						$('#form_photo_button').parent().removeClass('completed');
 					},
 					{
 						quality:50,
@@ -579,51 +601,51 @@ var DA={
 					}
 				);
 			}
-			else DA.showCameraPanel();
+			else App.showCameraPanel();
 		},
 	//Show camera panel for photo annotation
 		showCameraPanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
-			$('.photo_layout').css('background-image','url(\''+$('#delivery_photo_value').val()+'\')');
+			$('.photo_layout').css('background-image','url(\''+$('#form_photo_value').val()+'\')');
 			$('.photo_page .close_button').off().on('click',function(){
 				$('.photo_page').fadeOut(function(){
-					if(!DA.data.photo.canvas.isEmpty()){
-						$('#delivery_annotation_value').val(DA.data.photo.canvas.toDataURL());
-						DA.data.photo.canvas.clear();
+					if(!App.data.photo.canvas.isEmpty()){
+						$('#form_annotation_value').val(App.data.photo.canvas.toDataURL());
+						App.data.photo.canvas.clear();
 					}
-					else $('#delivery_annotation_value').val('');
+					else $('#form_annotation_value').val('');
 				});
 			});
 			$('.photo_page').fadeIn(function(){
-				DA.initialisePhotoPanel();
+				App.initialisePhotoPanel();
 			});
 		},
 	//Resize photo canvas element
 		initialisePhotoPanel:function(){
-			DA.data.photo.canvas=document.querySelector('canvas#photo_image');
-			$(DA.data.photo.canvas).width($(document).width());
-			$(DA.data.photo.canvas).height($(document).height());
-			DA.data.photo.canvas.width=$(document).width();
-			DA.data.photo.canvas.height=$(document).height();
-			DA.data.photo.canvas=new SignaturePad(DA.data.photo.canvas);
-			DA.data.photo.canvas.penColor='yellow';
+			App.data.photo.canvas=document.querySelector('canvas#photo_image');
+			$(App.data.photo.canvas).width($(document).width());
+			$(App.data.photo.canvas).height($(document).height());
+			App.data.photo.canvas.width=$(document).width();
+			App.data.photo.canvas.height=$(document).height();
+			App.data.photo.canvas=new SignaturePad(App.data.photo.canvas);
+			App.data.photo.canvas.penColor='yellow';
 		},
-	//Close delivery screen (cancel)
-		cancelDelivery:function(){
-			DA.showMessage('confirm','Information you have entered for this delivery will be discarded',function(){
-				DA.loadManifest();
+	//Close item form screen (cancel form)
+		cancelForm:function(){
+			App.showMessage('confirm',App.message.cancelForm,function(){
+				App.loadListData();
 			});
 		},
-	//Submit delivery data
-		submitDelivery:function(){
-			if(DA.validateDelivery()==true){
-				$('#delivery_timestamp_value').val(new Date().getTime());
+	//Submit item form
+		submitForm:function(){
+			if(App.validateForm()==true){
+				$('#form_timestamp_value').val(new Date().getTime());
 				var f={};
-				$('.delivery_form .form_buttons > input').not('button').each(function(){
+				$('.item_form .form_buttons > input').not('button').each(function(){
 					f[$(this).attr('id')]=$(this).val();
 				});
 				var a=[],i={};
-				$('.delivery_item').each(function(){
+				$('.form_item').each(function(){
 					i={};
 					i['item_code']=$(this).find('.item_code').html();
 					i['item_name']=$(this).find('.item_name').html();
@@ -631,40 +653,40 @@ var DA={
 					i['quantity_returned']=$(this).find('.return_quantity > input').val();
 					a.push(i);
 				});
-				f['delivery_items']=a;
-				DA.addQueueItem(f);
+				f['form_items']=a;
+				App.addQueueItem(f);
 			}
-			else DA.showMessage('error','Please complete this form before saving');
+			else App.showMessage('error',App.message.incompleteForm);
 			return false;
 		},
-	//Validate delivery data before submission
-		validateDelivery:function(){
+	//Validate item form data before submission
+		validateForm:function(){
 			var i=0;
-			$('.delivery_form .hidden_field[data-required=true]').each(function(){
+			$('.item_form .hidden_field[data-required=true]').each(function(){
 				if($(this).val()=='')return false;
 				i++;
 			});
-			if(i==$('.delivery_form .hidden_field[data-required=true]').length)return true;
+			if(i==$('.item_form .hidden_field[data-required=true]').length)return true;
 			return false;
 		},
-	//Add submission to processing queue and return to manifest page
+	//Add submission to processing queue and return to list page
 		addQueueItem:function(item){
 			var q;
-			if(window.localStorage.getItem('da-queue')!=null){
-				q=window.localStorage.getItem('da-queue').split(']')[0]+','+JSON.stringify(item)+']';
+			if(window.localStorage.getItem(App.prefix+'-queue')!=null){
+				q=window.localStorage.getItem(App.prefix+'-queue').split(']')[0]+','+JSON.stringify(item)+']';
 			}
 			else q='['+JSON.stringify(item)+']';
-			window.localStorage.setItem('da-queue',q);
-			DA.updateDeliveryStatus(item.delivery_index_value,'Pending',DA.loadManifest);
+			window.localStorage.setItem(App.prefix+'-queue',q);
+			App.updateItemStatus(item.form_index_value,'Pending',App.loadListData);
 		},
 		
 	
 	
-	//DELIVERY UPLOAD + QUEUE
+	//FORM UPLOAD + QUEUE
 	
-	//Process delivery submission queue
+	//Process form submission queue
 		processQueue:function(){
-			var q=$.makeArray(window.localStorage.getItem('da-queue'));
+			var q=$.makeArray(window.localStorage.getItem(App.prefix+'-queue'));
 			if(q.length>0&&window.navigator.onLine==true){
 				$.ajax({
 					type:'POST',
@@ -674,33 +696,33 @@ var DA={
 					data:q[0],
 					processData:false,
 					success:function(data,status,request){
-						DA.processQueueResponse();
+						App.processQueueResponse();
 					},
 					error:function(request,status,error){
-						DA.showServerError(request,status,error);
+						App.showServerError(request,status,error);
 					}
 				});
 			}
 		},
-	//Process response and remove delivery from queue
+	//Process response and remove item from queue
 		processQueueResponse:function(){
-			var a=JSON.parse(window.localStorage.getItem('da-queue'));
+			var a=JSON.parse(window.localStorage.getItem(App.prefix+'-queue'));
 			var i=a.shift();
-			if(a.length>0)window.localStorage.setItem('da-queue',JSON.stringify(a));
-			else window.localStorage.removeItem('da-queue');
-			DA.updateDeliveryStatus(i.delivery_index_value,'Submitted',function(){
-				DA.uploadImageFile(
-					i.delivery_photo_value,
-					i.delivery_index_value+'-'+i.delivery_timestamp_value
+			if(a.length>0)window.localStorage.setItem(App.prefix+'-queue',JSON.stringify(a));
+			else window.localStorage.removeItem(App.prefix+'-queue');
+			App.updateItemStatus(i.form_index_value,'Submitted',function(){
+				App.uploadImageFile(
+					i.form_photo_value,
+					i.form_index_value+'-'+i.form_timestamp_value
 				);
 			});
 		},
-	//Update delivery status in stored manifest data
-		updateDeliveryStatus:function(id,status,process){
-			var m=JSON.parse(window.localStorage.getItem('da-manifest'));
+	//Update item status in stored list data
+		updateItemStatus:function(id,status,process){
+			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
 			m[id].DeliveryStatus=status;
-			window.localStorage.setItem('da-manifest',JSON.stringify(m));
-			$('.manifest_item[data-manifest-index='+(id)+']').removeClass('pending submitted').addClass(status.toLowerCase());
+			window.localStorage.setItem(App.prefix+'-data',JSON.stringify(m));
+			$('.list_item[data-item-index='+(id)+']').removeClass('pending submitted').addClass(status.toLowerCase());
 			if(typeof process=='function')(process)();
 		},
 	//Upload image file
@@ -716,15 +738,15 @@ var DA={
 					url,
 					'https://www.multibaseit.com.au/da/image.aspx',
 					function(result){
-						DA.processUploadResult(result);
+						App.processUploadResult(result);
 					},
 					function(error){
-						DA.processUploadFailure(error);
+						App.processUploadFailure(error);
 					},
 					o
 				);
 			}
-			else DA.processQueue();
+			else App.processQueue();
 		},
 	//Process image upload success
 		processUploadResult:function(result){
@@ -733,7 +755,7 @@ var DA={
 				("\nResponse = "+result.response)+
 				("\nSent = "+result.bytesSent);
 			//alert(a);
-			DA.processQueue();
+			App.processQueue();
 		},
 	//Process image upload failure
 		processUploadFailure:function(error){
@@ -745,7 +767,7 @@ var DA={
 				("\nUpload error exception = "+error.exception)+
 				("\nUpload error target = "+error.target);
 			//alert(a);
-			DA.processQueue();
+			App.processQueue();
 		}
 };
-document.addEventListener('deviceready',$(DA.initialise),false);
+document.addEventListener('deviceready',$(App.initialise),false);
