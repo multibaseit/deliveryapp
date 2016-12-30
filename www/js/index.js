@@ -89,10 +89,12 @@ var App={
 			if(window.navigator.vibrate&&type=='error')window.navigator.vibrate(200);
 			$('.error_page').removeClass('error confirm warning notification').addClass(type+' active_overlay').fadeIn(function(){
 				if(typeof process=='function'&&type!='confirm')(process)();
-				$(this).find('.close_button, .confirm_no').off().on('click',function(){
+				$(this).find('.close_button, .confirm_no').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
 					$('.error_page').removeClass('active_overlay').fadeOut();
 				});
-				$(this).find('.confirm_yes').off().on('click',function(){
+				$(this).find('.confirm_yes').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
 					(process)();
 					$('.error_page').removeClass('active_overlay').fadeOut();
 				});
@@ -246,16 +248,19 @@ var App={
 				$('.list_items').fadeIn().removeClass('filtered').html(h.join(''));
 			//Bind events for list items
 				$('.list_items .list_item').not('.pending,.submitted').each(function(){
-					$(this).on('click',function(){
+					$(this).on('touchstart mousedown',function(event){
+						event.preventDefault();
 						App.buildForm($(this).attr('data-item-index'));
 					});
-					$(this).find('.item_map_link').on('click',function(){
+					$(this).find('.item_map_link').on('touchstart mousedown',function(event){
+						event.preventDefault();
 						event.stopPropagation();
 						App.showMapPanel($(this).parent().attr('data-item-geocode'));
 					});
 				});
 				$('.list_item.pending, .list_item.submitted').each(function(){
-					$(this).on('click',function(){
+					$(this).on('touchstart mousedown',function(event){
+						event.preventDefault();
 						App.showMessage('error',App.message.itemCompleted);
 					});
 				});
@@ -267,23 +272,29 @@ var App={
 					return false;
 				});
 				$('#search_value').off().on('input',App.filterList).val('');
-				$('.search_clear').off().on('click',function(){
+				$('.search_clear').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
 					$('#search_value').val('');
 					App.filterList();
 				});
 			//Display list update time
-				$('.list_update').off().on('click',App.forceListLoad);
+				$('.list_update').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
+					App.forceListLoad();
+				});
 				$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
 				$('.list_update .fa').removeClass('fa-spin');
 				App.data.list.timer=setInterval(function(){
 					$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
 				},60000);
 			//Bind close button event
-				$('.list_page > .close_button').off().on('click',function(){
+				$('.list_page > .close_button').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
 					App.showMessage('confirm',App.message.logOutPrompt,App.logOut);
 				});
 			//Bind list toggle event
-				$('.list_toggle').off().on('click',function(){
+				$('.list_toggle').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
 					if($('.list_item.pending,.list_item.submitted')[0]){
 						App.data.list.toggled=!App.data.list.toggled;
 						App.toggleList();
@@ -345,7 +356,10 @@ var App={
 					$('.map_icon').addClass('loading');
 					$('.active_overlay').removeClass('active_overlay').hide();
 					$('.map_page').addClass('active_overlay').fadeIn();
-					$('.map_page .close_button').off().on('click',App.hideMapPanel);
+					$('.map_page .close_button').off().on('touchstart mousedown',function(event){
+						event.preventDefault();
+						App.hideMapPanel();
+					});
 					if(parseInt(destination)+''!='NaN'){
 						App.data.map.destination=destination;
 						App.getGeocode(App.initialiseMap);
@@ -450,7 +464,8 @@ var App={
 				$('#form_invoice_value').val(m.Delivery.Invoice);
 				$('#form_index_value').val(id);
 			//Bind events for item quantity pickers
-				$('.item_form .picker_quantity').on('activate',App.activatePicker).on('click',function(){
+				$('.item_form .picker_quantity').on('activate',App.activatePicker).on('touchstart mousedown',function(event){
+					event.preventDefault();
 					$(this).trigger('activate');
 				});
 				$('.item_form .picker_less').each(function(){
@@ -472,12 +487,14 @@ var App={
 					});
 				});
 			//Bind signature button event
-				$('#form_sign_button').off().on('click',function(){
+				$('#form_sign_button').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
 					$('.item_picker').removeClass('active');
 					App.showSignaturePanel();
 				});
 			//Bind photo button event
-				$('#form_photo_button').off().on('click',function(){
+				$('#form_photo_button').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
 					$('.item_picker').removeClass('active');
 					App.openCamera();
 				});
@@ -485,9 +502,15 @@ var App={
 				$('.item_form').off().on('submit',function(){
 					return false;
 				});
-				$('#form_submit_button').off().on('click',App.submitForm);
+				$('#form_submit_button').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
+					App.submitForm();
+				});
 			//Bind close button event
-				$('.form_page > .close_button').off().on('click',App.cancelForm);
+				$('.form_page > .close_button').off().on('touchstart mousedown',function(event){
+					event.preventDefault();
+					App.cancelForm();
+				});
 			//Display form page
 				App.showPage('.form_page');
 		},
@@ -554,7 +577,8 @@ var App={
 	//Show signature overlay for form - https://github.com/szimek/signature_pad
 		showSignaturePanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
-			$('.signature_page .close_button').off().on('click',function(){
+			$('.signature_page .close_button').off().on('touchstart mousedown',function(event){
+				event.preventDefault();
 				$('.signature_page').fadeOut(function(){
 					if(!App.data.signature.canvas.isEmpty()){
 						$('#form_sign_value').val(App.data.signature.canvas.toDataURL());
@@ -607,7 +631,8 @@ var App={
 		showCameraPanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
 			$('.photo_layout').css('background-image','url(\''+$('#form_photo_value').val()+'\')');
-			$('.photo_page .close_button').off().on('click',function(){
+			$('.photo_page .close_button').off().on('touchstart mousedown',function(event){
+				event.preventDefault();
 				$('.photo_page').fadeOut(function(){
 					if(!App.data.photo.canvas.isEmpty()){
 						$('#form_annotation_value').val(App.data.photo.canvas.toDataURL());
