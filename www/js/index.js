@@ -49,7 +49,6 @@ var App={
 				document.addEventListener('backbutton',App.handleBackButton,false);
 			//Device connection state
 				document.addEventListener('online',function(){
-					alert('online');
 					App.processQueue();
 				},false);
 			//iOS stylesheet
@@ -703,7 +702,6 @@ var App={
 	//Process form submission queue
 		processQueue:function(){
 			var q=$.makeArray(window.localStorage.getItem(App.prefix+'-queue'));
-			alert('window.navigator.onLine: '+window.navigator.onLine);
 			if(q.length>0&&window.navigator.onLine==true){
 				$.ajax({
 					type:'POST',
