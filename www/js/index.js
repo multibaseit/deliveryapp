@@ -48,9 +48,7 @@ var App={
 			//Device back button
 				document.addEventListener('backbutton',App.handleBackButton,false);
 			//Device connection state
-				document.addEventListener('online',function(){
-					App.processQueue();
-				},false);
+				document.addEventListener('online',App.processQueue,false);
 			//iOS stylesheet
 				if(/constructor/i.test(window.HTMLElement))$('body').addClass('ios');
 			//HTML templates
