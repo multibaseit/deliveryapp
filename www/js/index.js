@@ -45,10 +45,6 @@ var App={
 		},
 	//Initialise application and show first page
 		initialise:function(){
-			//Device back button
-				document.addEventListener('backbutton',App.handleBackButton,false);
-			//Device connection state
-				document.addEventListener('online',App.processQueue,false);
 			//iOS stylesheet
 				if(/constructor/i.test(window.HTMLElement))$('body').addClass('ios');
 			//HTML templates
@@ -783,4 +779,13 @@ var App={
 			App.processQueue();
 		}
 };
-document.addEventListener('deviceready',$(App.initialise),false);
+//document.addEventListener('deviceready',$(App.initialise),false);
+document.addEventListener('deviceready',attachDeviceEvents,false);
+function attachDeviceEvents(){
+	//Device back button
+		document.addEventListener('backbutton',App.handleBackButton,false);
+	//Device connection state
+		document.addEventListener('online',App.processQueue,false);
+	//Initialisation
+		$(document).ready(App.initialise);
+}
