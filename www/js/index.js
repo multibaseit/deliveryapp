@@ -32,7 +32,7 @@ var App={
 		message:{
 			logOutPrompt:'You will be logged out',
 			invalidLogin:'Please enter a valid username and password',
-			offlineUpdate:'Your manifest cannot be updated while your device is offline',
+			offlineUpdate:'Your manifest will be updated when your device is online',
 			itemCompleted:'This delivery has been completed',
 			noItems:'You have no deliveries scheduled',
 			updateError:'Your manifest could not be updated',
@@ -688,7 +688,8 @@ var App={
 		addQueueItem:function(item){
 			var q;
 			if(window.localStorage.getItem(App.prefix+'-queue')!=null){
-				q=window.localStorage.getItem(App.prefix+'-queue').split(']')[0]+','+JSON.stringify(item)+']';
+				//q=window.localStorage.getItem(App.prefix+'-queue').split(']')[0]+','+JSON.stringify(item)+']';
+				q=window.localStorage.getItem(App.prefix+'-queue').substring(0,window.localStorage.getItem(App.prefix+'-queue').lastIndexOf(']'))+','+JSON.stringify(item)+']';
 			}
 			else q='['+JSON.stringify(item)+']';
 			window.localStorage.setItem(App.prefix+'-queue',q);
