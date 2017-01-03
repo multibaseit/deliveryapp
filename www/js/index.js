@@ -52,7 +52,7 @@ var App={
 				App.template.formItem=$('.form_items').html().replace(/\t|\r|\n/gi,'');
 				$('.form_items').html('-data-');
 				App.template.itemForm=$('.item_form').html().replace(/\t|\r|\n/gi,'');
-			//Login
+			//Login form handler
 				$('.login_form').on('submit',App.submitLogin);
 			//First page
 				App.showPage('.login_page');
@@ -281,10 +281,12 @@ var App={
 				});
 			//Display list update time
 				$('.list_update').off().on('click',App.forceListLoad);
-				$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
+				//$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
+				App.updateTime();
 				$('.list_update .fa').removeClass('fa-spin');
 				App.data.list.timer=setInterval(function(){
-					$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
+					//$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
+					App.updateTime();
 				},60000);
 			//Bind close button event
 				$('.list_page > .close_button').off().on('click',function(){
@@ -307,6 +309,10 @@ var App={
 				App.processQueue();
 			}
 			else if(!$('.error_page').hasClass('active_overlay'))App.showMessage('warning',App.message.noItems);
+		},
+	//Display last update time
+		updateTime:function(){
+			$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
 		},
 	//Display server error message
 		showServerError:function(request,status,error){
@@ -779,13 +785,15 @@ var App={
 			App.processQueue();
 		}
 };
-//document.addEventListener('deviceready',$(App.initialise),false);
-document.addEventListener('deviceready',attachDeviceEvents,false);
-function attachDeviceEvents(){
+function addDeviceEvents(){
 	//Device back button
 		document.addEventListener('backbutton',App.handleBackButton,false);
 	//Device connection state
 		document.addEventListener('online',App.processQueue,false);
+	//Application focus
+		document.addEventListener('resume',App.updateTime,false);
 	//Initialisation
 		$(document).ready(App.initialise);
 }
+if(window.cordova)document.addEventListener('deviceready',addDeviceEvents,false);
+else $(document).ready(App.initialise);
