@@ -6,6 +6,7 @@ var App={
 	
 	//Function customisations
 	/*
+	authenticateLogin
 	loadListData
 	buildList
 	buildForm
@@ -18,6 +19,8 @@ var App={
 	
 	//Local storage name prefix
 		prefix:'da',
+	//Automatic update time value (ms)
+		timer:1800000,
 	//Persistent variables
 		data:{
 			list:{},
@@ -188,7 +191,7 @@ var App={
 	//Load list data from server
 		loadListData:function(force){
 			if(window.navigator.onLine==true){
-				if(new Date().getTime()>parseInt(window.localStorage.getItem(App.prefix+'-update-time'))+1800000||
+				if(new Date().getTime()>parseInt(window.localStorage.getItem(App.prefix+'-update-time'))+App.timer||
 					window.localStorage.getItem(App.prefix+'-update-time')==null||
 					window.localStorage.getItem(App.prefix+'-data')==null||
 					force==true){
@@ -281,13 +284,9 @@ var App={
 				});
 			//Display list update time
 				$('.list_update').off().on('click',App.forceListLoad);
-				//$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
 				App.updateTime();
 				$('.list_update .fa').removeClass('fa-spin');
-				App.data.list.timer=setInterval(function(){
-					//$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
-					App.updateTime();
-				},60000);
+				App.data.list.timer=setInterval(App.updateTime,60000);
 			//Bind close button event
 				$('.list_page > .close_button').off().on('click',function(){
 					App.showMessage('confirm',App.message.logOutPrompt,App.logOut);
