@@ -68,7 +68,7 @@ left:0;
 right:0;
 bottom:0;
 z-index:99;
-overflow:auto;
+overflow:hidden;
 text-align:center;
 background:white;
 }
@@ -259,8 +259,6 @@ top:-999em;
 
 /*LOGIN PAGE*/
 
-div.login_page{
-}
 div.login_logo{
 height:12em;
 width:12em;
