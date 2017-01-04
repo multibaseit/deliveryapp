@@ -32,10 +32,10 @@ var App={
 		message:{
 			logOutPrompt:'You will be logged out',
 			invalidLogin:'Please enter a valid username and password',
-			offlineUpdate:'Your manifest will be updated when your device is online',
+			offlineUpdate:'Your deliveries will be updated next time your device is online',
 			itemCompleted:'This delivery has been completed',
 			noItems:'You have no deliveries scheduled',
-			updateError:'Your manifest could not be updated',
+			updateError:'Your deliveries could not be updated due to a server error',
 			noMapAvailable:'Maps are not available for this delivery',
 			noGeolocation:'Maps cannot be used when your device is offline or location is turned off',
 			googleError:'An error has occurred at Google Maps',
@@ -259,7 +259,7 @@ var App={
 					});
 					$(this).find('.item_map_link').on('click',function(){
 						event.stopPropagation();
-						App.showMapPanel($(this).parent().attr('data-item-geocode'));
+						App.validateMapData($(this).parent().attr('data-item-geocode'));
 					});
 				});
 				$('.list_item.pending, .list_item.submitted').each(function(){
@@ -349,31 +349,46 @@ var App={
 				$('.search_clear').hide();
 			}
 		},
-	//Show and hide map overlay
-		showMapPanel:function(destination){
-			if(window.navigator.onLine==true&&
-				typeof window.navigator.geolocation==='object'&&
-				typeof google==='object'&&
-				typeof google.maps==='object'){
-					$('#map_inner').empty();
-					$('.map_icon').addClass('loading');
-					$('.active_overlay').removeClass('active_overlay').hide();
-					$('.map_page').addClass('active_overlay').fadeIn();
-					$('.map_page .close_button').off().on('click',App.hideMapPanel);
-					if(parseInt(destination)+''!='NaN'){
-						App.data.map.destination=destination;
-						App.getGeocode(App.initialiseMap);
-					}
-					else App.showMessage('error',App.message.noMapAvailable,App.hideMapPanel);
+	//Validate map data
+		validateMapData:function(destination){
+			if(window.navigator.onLine==false||typeof window.navigator.geolocation!=='object'){
+				App.showMessage('error',App.message.noGeolocation);
+				return;
+			}
+			var s=destination.split(',');
+			if(isNaN(s[0])||isNaN(s[1])){
+				App.showMessage('error',App.message.noMapAvailable);
+				return;
 			}
 			else{
-				App.showMessage('error',App.message.noGeolocation);
+				App.data.map.destination=destination;
+				App.showMapPanel();
 			}
+		},
+	//Show and hide map overlay
+		showMapPanel:function(){
+			$('#map_inner').empty();
+			$('.map_icon').addClass('loading');
+			$('.active_overlay').removeClass('active_overlay').hide();
+			$('.map_page').addClass('active_overlay').fadeIn();
+			$('.map_page .close_button').off().on('click',App.hideMapPanel);
+			if(typeof google==='undefined'||typeof google.maps==='undefined'){
+				$('body').append('<script type="text/javascript" src="'+$('#google_script').attr('data-src')+'"></script>');
+				App.verifyMapScript();
+			}
+			else App.getGeocode(App.initialiseMap);
 		},
 		hideMapPanel:function(){
 			$('.map_page').removeClass('active_overlay').fadeOut(function(){
 				$('.map_icon').removeClass('loading');
 			});
+		},
+	//Reload Google scripts if unavailable
+		verifyMapScript:function(){
+			if(typeof google==='object'&&typeof google.maps==='object'){
+				App.getGeocode(App.initialiseMap);
+			}
+			else window.setTimeout(App.verifyMapScript,500);
 		},
 	//Initialise map for directions
 		initialiseMap:function(){
@@ -621,7 +636,7 @@ var App={
 	//Show camera panel for photo annotation
 		showCameraPanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
-			$('.photo_layout').css('background-image','url(\''+$('#form_photo_value').val()+'\')');
+			if($('#form_photo_value').val()!='No photo captured')$('.photo_layout').css('background-image','url(\''+$('#form_photo_value').val()+'\')');
 			$('.photo_page .close_button').off().on('click',function(){
 				$('.photo_page').fadeOut(function(){
 					if(!App.data.photo.canvas.isEmpty()){
