@@ -20,7 +20,7 @@ var App={
 	//Local storage name prefix
 		prefix:'da',
 	//Automatic update time value (ms)
-		timer:1800000,
+		timeout:1800000,
 	//Persistent variables
 		data:{
 			list:{},
@@ -191,7 +191,7 @@ var App={
 	//Load list data from server
 		loadListData:function(force){
 			if(window.navigator.onLine==true){
-				if(new Date().getTime()>parseInt(window.localStorage.getItem(App.prefix+'-update-time'))+App.timer||
+				if(new Date().getTime()>parseInt(window.localStorage.getItem(App.prefix+'-update-time'))+App.timeout||
 					window.localStorage.getItem(App.prefix+'-update-time')==null||
 					window.localStorage.getItem(App.prefix+'-data')==null||
 					force==true){
