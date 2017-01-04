@@ -810,5 +810,6 @@ function addDeviceEvents(){
 	//Initialisation
 		$(document).ready(App.initialise);
 }
-if(window.cordova)document.addEventListener('deviceready',addDeviceEvents,false);
-else $(document).ready(App.initialise);
+//if(window.cordova)document.addEventListener('deviceready',addDeviceEvents,false);
+//else $(document).ready(App.initialise);
+document.addEventListener('deviceready',addDeviceEvents,false);
