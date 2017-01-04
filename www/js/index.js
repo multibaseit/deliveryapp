@@ -6,6 +6,7 @@ var App={
 	
 	//Function customisations
 	/*
+	handleBackButton
 	authenticateLogin
 	loadListData
 	buildList
@@ -19,8 +20,10 @@ var App={
 	
 	//Local storage name prefix
 		prefix:'da',
-	//Automatic update time value (ms)
+		
+	//Data lifetime value (ms)
 		timeout:1800000,
+		
 	//Persistent variables
 		data:{
 			list:{},
@@ -29,8 +32,10 @@ var App={
 			signature:{},
 			photo:{}
 		},
+		
 	//HTML templates for repeaters
 		template:{},
+		
 	//Text strings for prompts and alerts
 		message:{
 			logOutPrompt:'You will be logged out',
@@ -43,9 +48,11 @@ var App={
 			noGeolocation:'Maps cannot be used when your device is offline or location is turned off',
 			googleError:'An error has occurred at Google Maps',
 			locationError:'Your location cannot be determined',
+			noCamera:'No camera is available',
 			cancelForm:'Information you have entered for this delivery will be discarded',
 			incompleteForm:'Please complete this form before saving'
 		},
+		
 	//Initialise application and show first page
 		initialise:function(){
 			//iOS stylesheet
@@ -90,6 +97,7 @@ var App={
 				$(page).addClass('active_page');
 			});
 		},
+		
 	//Display notification or confirmation dialogue
 		showMessage:function(type,text,process){
 			if(type=='confirm')$('.confirm_button').show();
@@ -109,6 +117,7 @@ var App={
 				});
 			});
 		},
+		
 	//Format date strings
 		processDate:function(dateObj){
 			if(typeof dateObj!='object'){
@@ -129,6 +138,7 @@ var App={
 			dateObj.dayFormat=d[dateObj.getDay()];
 			return dateObj;
 		},
+		
 	//Generate natural language last update string from timestamp
 		lastUpdateText:function(timestamp){
 			var t=new Date().getTime(),
@@ -141,6 +151,7 @@ var App={
 			else if(m>0)u=m+' minute'+((m>1)?'s':'')+' ago';
 			return u;
 		},
+		
 	//Intercept device back button
 		handleBackButton:function(){
 			if($('.active_overlay')[0]){
@@ -176,10 +187,13 @@ var App={
 			if(fail)App.showMessage('error',App.message.invalidLogin);
 			return false;
 		},
+		
 	//Check login credentials
 		authenticateLogin:function(){
 			return true;
 		},
+	
+	//Log out
 		logOut:function(){
 			App.showPage('.login_page',0);
 		},
@@ -220,12 +234,14 @@ var App={
 				else App.buildList();
 			}
 		},
+		
 	//Store loaded list data 
 		storeLocalData:function(data){
 			window.localStorage.setItem(App.prefix+'-data',JSON.stringify(data));
 			window.localStorage.setItem(App.prefix+'-update-time',new Date().getTime());
 			App.buildList();
 		},
+		
 	//Generate list HTML
 		buildList:function(){
 			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
@@ -309,10 +325,12 @@ var App={
 			}
 			else if(!$('.error_page').hasClass('active_overlay'))App.showMessage('warning',App.message.noItems);
 		},
+		
 	//Display last update time
 		updateTime:function(){
 			$('.update_time').html(App.lastUpdateText(parseInt(window.localStorage.getItem(App.prefix+'-update-time'))));
 		},
+		
 	//Display server error message
 		showServerError:function(request,status,error){
 			var a=
@@ -322,6 +340,7 @@ var App={
 			//alert(a);
 			App.showMessage('error',App.message.updateError,App.buildList);
 		},
+		
 	//Force reload from server
 		forceListLoad:function(){
 			if(window.navigator.onLine==true){
@@ -331,6 +350,7 @@ var App={
 			}
 			else App.showMessage('error',App.message.offlineUpdate);
 		},
+		
 	//Search(filter) list
 		filterList:function(){
 			var s=$('#search_value')[0].value.trim().toLowerCase();
@@ -348,6 +368,7 @@ var App={
 				$('.search_clear').hide();
 			}
 		},
+		
 	//Validate map data
 		validateMapData:function(destination){
 			if(window.navigator.onLine==false||typeof window.navigator.geolocation!=='object'){
@@ -364,6 +385,7 @@ var App={
 				App.showMapPanel();
 			}
 		},
+		
 	//Show and hide map overlay
 		showMapPanel:function(){
 			$('#map_inner').empty();
@@ -382,6 +404,7 @@ var App={
 				$('.map_icon').removeClass('loading');
 			});
 		},
+		
 	//Reload Google scripts if unavailable
 		verifyMapScript:function(){
 			if(typeof google==='object'&&typeof google.maps==='object'){
@@ -389,6 +412,7 @@ var App={
 			}
 			else window.setTimeout(App.verifyMapScript,500);
 		},
+		
 	//Initialise map for directions
 		initialiseMap:function(){
 			if(!new RegExp('error','gi').test(App.data.map.origin)){
@@ -419,6 +443,7 @@ var App={
 			}
 			else if($('.map_page.active_overlay')[0])App.showMessage('error',App.message.noGeolocation,App.hideMapPanel);
 		},
+		
 	//Get geocode from device
 		getGeocode:function(process){
 			if(typeof window.navigator.geolocation==='object'){
@@ -438,6 +463,7 @@ var App={
 			}
 			else App.showMessage('error',App.message.locationError);
 		},
+		
 	//Add geocode value to form
 		setGeocodeFormValue:function(){
 			$('#form_geocode_value').val(App.data.map.origin);
@@ -445,6 +471,7 @@ var App={
 			if(App.data.map.origin.indexOf('Error')==0)$('.location_error').show();
 			else $('.location_captured').show();
 		},
+		
 	//Toggle submitted list items
 		toggleList:function(){
 			if(App.data.list.toggled==true)$('.list_page').addClass('list_toggled');
@@ -459,67 +486,67 @@ var App={
 	
 	//Generate item form
 		buildForm:function(id){
-			//Get item data
-				var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'))[id],
-				s=App.template.itemForm.split('-data-'),
-				h=[];
-				h.push(
-					s[0]+m.CustomerName+
-					s[1]+m.CustomerSite+
-					s[2]+App.processDate(m.Delivery.DeliveryDate).dateFormat+
-					s[3]+m.Delivery.DeliveryTime+
-					s[4]+m.Delivery.Invoice+
-					s[5]+App.addFormItems(m.Delivery.DeliveryItems)+
-					s[6]
-				);
-				$('.item_form').html(h.join(''));
-			//Populate static form data
-				App.getGeocode(App.setGeocodeFormValue);
-				$('#form_invoice_value').val(m.Delivery.Invoice);
-				$('#form_index_value').val(id);
-			//Bind events for item quantity pickers
-				$('.item_form .picker_quantity').on('activate',App.activatePicker).on('touchstart mousedown',function(event){
+			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'))[id],
+			s=App.template.itemForm.split('-data-'),
+			h=[];
+			h.push(
+				s[0]+m.CustomerName+
+				s[1]+m.CustomerSite+
+				s[2]+App.processDate(m.Delivery.DeliveryDate).dateFormat+
+				s[3]+m.Delivery.DeliveryTime+
+				s[4]+m.Delivery.Invoice+
+				s[5]+App.addFormItems(m.Delivery.DeliveryItems)+
+				s[6]
+			);
+			$('.item_form').html(h.join(''));
+		//Populate static form data
+			App.getGeocode(App.setGeocodeFormValue);
+			$('#form_invoice_value').val(m.Delivery.Invoice);
+			$('#form_index_value').val(id);
+		//Bind events for item quantity pickers
+			$('.item_form .picker_quantity').on('activate',App.activatePicker).on('touchstart mousedown',function(event){
+				event.preventDefault();
+				$(this).trigger('activate');
+			});
+			$('.item_form .picker_less').each(function(){
+				$(this).off().on('less',App.activatePickerLess).on('stop',App.deactivatePicker).on('touchstart mousedown',function(event){
 					event.preventDefault();
-					$(this).trigger('activate');
+					$(this).trigger('less');
+				}).on('touchend mouseup',function(event){
+					event.preventDefault();
+					$(this).trigger('stop');
 				});
-				$('.item_form .picker_less').each(function(){
-					$(this).off().on('less',App.activatePickerLess).on('stop',App.deactivatePicker).on('touchstart mousedown',function(event){
-						event.preventDefault();
-						$(this).trigger('less');
-					}).on('touchend mouseup',function(event){
-						event.preventDefault();
-						$(this).trigger('stop');
-					});
+			});
+			$('.item_form .picker_more').each(function(){
+				$(this).off().on('more',App.activatePickerMore).on('stop',App.deactivatePicker).on('touchstart mousedown',function(event){
+					event.preventDefault();
+					$(this).trigger('more');
+				}).on('touchend mouseup',function(event){
+					event.preventDefault();
+					$(this).trigger('stop');
 				});
-				$('.item_form .picker_more').each(function(){
-					$(this).off().on('more',App.activatePickerMore).on('stop',App.deactivatePicker).on('touchstart mousedown',function(event){
-						event.preventDefault();
-						$(this).trigger('more');
-					}).on('touchend mouseup',function(event){
-						event.preventDefault();
-						$(this).trigger('stop');
-					});
-				});
-			//Bind signature button event
-				$('#form_sign_button').off().on('click',function(){
-					$('.item_picker').removeClass('active');
-					App.showSignaturePanel();
-				});
-			//Bind photo button event
-				$('#form_photo_button').off().on('click',function(){
-					$('.item_picker').removeClass('active');
-					App.openCamera();
-				});
-			//Bind form + submit events
-				$('.item_form').off().on('submit',function(){
-					return false;
-				});
-				$('#form_submit_button').off().on('click',App.submitForm);
-			//Bind close button event
-				$('.form_page > .close_button').off().on('click',App.cancelForm);
-			//Display form page
-				App.showPage('.form_page');
+			});
+		//Bind signature button event
+			$('#form_sign_button').off().on('click',function(){
+				$('.item_picker').removeClass('active');
+				App.showSignaturePanel();
+			});
+		//Bind photo button event
+			$('#form_photo_button').off().on('click',function(){
+				$('.item_picker').removeClass('active');
+				App.openCamera();
+			});
+		//Bind form + submit events
+			$('.item_form').off().on('submit',function(){
+				return false;
+			});
+			$('#form_submit_button').off().on('click',App.submitForm);
+		//Bind close button event
+			$('.form_page > .close_button').off().on('click',App.cancelForm);
+		//Display form page
+			App.showPage('.form_page');
 		},
+		
 	//Generate HTML for form items
 		addFormItems:function(items){
 			var s=App.template.formItem.split('-data-'),
@@ -540,6 +567,7 @@ var App={
 			}
 			return h.join('');
 		},
+		
 	//Activate item quantity picker for data entry
 		activatePicker:function(){
 			if(!$(this).parent().hasClass('active')){
@@ -551,6 +579,7 @@ var App={
 			}
 			$('.picker_active').finish().hide();
 		},
+		
 	//Subtract from item picker quantity
 		activatePickerLess:function(){
 			$(this).siblings('input').val(Math.max(0,parseInt($(this).siblings('input').val())-1));
@@ -562,6 +591,7 @@ var App={
 				$(App.data.picker).trigger('less');
 			},200);
 		},
+		
 	//Add to item picker quantity
 		activatePickerMore:function(){
 			var m=parseInt($(this).parent().attr('data-picker-max'))||99;
@@ -574,12 +604,14 @@ var App={
 				$(App.data.picker).trigger('more');
 			},200);
 		},
+		
 	//Deactivate repeated addition or subtraction for picker 
 		deactivatePicker:function(){
 			clearTimeout(App.data.picker.timer);
 			App.data.picker.timer=null;
 			App.data.picker=null;
 		},
+		
 	//Show signature overlay for form - https://github.com/szimek/signature_pad
 		showSignaturePanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
@@ -600,6 +632,7 @@ var App={
 				App.initialiseSignaturePanel();
 			});
 		},
+		
 	//Resize signature canvas element
 		initialiseSignaturePanel:function(){
 			App.data.signature.canvas=document.querySelector('canvas#signature_image');
@@ -609,6 +642,7 @@ var App={
 			App.data.signature.canvas.height=$(document).height();
 			App.data.signature.canvas=new SignaturePad(App.data.signature.canvas);
 		},
+		
 	//Open camera for form
 		openCamera:function(){
 			if(window.navigator.camera){
@@ -630,8 +664,9 @@ var App={
 					}
 				);
 			}
-			else App.showCameraPanel();
+			else App.showMessage('error',App.message.noCamera);
 		},
+		
 	//Show camera panel for photo annotation
 		showCameraPanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
@@ -649,6 +684,7 @@ var App={
 				App.initialisePhotoPanel();
 			});
 		},
+		
 	//Resize photo canvas element
 		initialisePhotoPanel:function(){
 			App.data.photo.canvas=document.querySelector('canvas#photo_image');
@@ -659,12 +695,14 @@ var App={
 			App.data.photo.canvas=new SignaturePad(App.data.photo.canvas);
 			App.data.photo.canvas.penColor='yellow';
 		},
+		
 	//Close item form screen (cancel form)
 		cancelForm:function(){
 			App.showMessage('confirm',App.message.cancelForm,function(){
 				App.loadListData();
 			});
 		},
+		
 	//Submit item form
 		submitForm:function(){
 			if(App.validateForm()==true){
@@ -688,6 +726,7 @@ var App={
 			else App.showMessage('error',App.message.incompleteForm);
 			return false;
 		},
+		
 	//Validate item form data before submission
 		validateForm:function(){
 			var i=0;
@@ -698,11 +737,11 @@ var App={
 			if(i==$('.item_form .hidden_field[data-required=true]').length)return true;
 			return false;
 		},
+		
 	//Add submission to processing queue and return to list page
 		addQueueItem:function(item){
 			var q;
 			if(window.localStorage.getItem(App.prefix+'-queue')!=null){
-				//q=window.localStorage.getItem(App.prefix+'-queue').split(']')[0]+','+JSON.stringify(item)+']';
 				q=window.localStorage.getItem(App.prefix+'-queue').substring(0,window.localStorage.getItem(App.prefix+'-queue').lastIndexOf(']'))+','+JSON.stringify(item)+']';
 			}
 			else q='['+JSON.stringify(item)+']';
@@ -734,6 +773,7 @@ var App={
 				});
 			}
 		},
+		
 	//Process response and remove item from queue
 		processQueueResponse:function(){
 			var a=JSON.parse(window.localStorage.getItem(App.prefix+'-queue'));
@@ -747,6 +787,7 @@ var App={
 				);
 			});
 		},
+		
 	//Update item status in stored list data
 		updateItemStatus:function(id,status,process){
 			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
@@ -755,6 +796,7 @@ var App={
 			$('.list_item[data-item-index='+(id)+']').removeClass('pending submitted').addClass(status.toLowerCase());
 			if(typeof process=='function')(process)();
 		},
+		
 	//Upload image file
 		uploadImageFile:function(url,id){
 			if(window.cordova&&url.indexOf(' ')<0){
@@ -778,6 +820,7 @@ var App={
 			}
 			else App.processQueue();
 		},
+		
 	//Process image upload success
 		processUploadResult:function(result){
 			var a=
@@ -787,6 +830,7 @@ var App={
 			//alert(a);
 			App.processQueue();
 		},
+		
 	//Process image upload failure
 		processUploadFailure:function(error){
 			var a=
@@ -800,6 +844,9 @@ var App={
 			App.processQueue();
 		}
 };
+
+
+
 function addDeviceEvents(){
 	//Device back button
 		document.addEventListener('backbutton',App.handleBackButton,false);
