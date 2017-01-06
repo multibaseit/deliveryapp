@@ -50,6 +50,20 @@ div.item_picker span.picker_label{
 display:block;
 margin:0;
 }
+span.item_totals{
+display:table;
+float:none;
+margin:0 auto;
+}
+span.total_text{
+display:block;
+text-align:center;
+}
+span.total_labels{
+display:table;
+margin:0 auto;
+float:none;
+}
 div.form_page div.form_buttons{
 margin:0;
 }
