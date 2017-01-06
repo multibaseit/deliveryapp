@@ -294,7 +294,7 @@ display:table;
 margin:0 auto;
 }
 div.list_update{
-padding:0.5em 0 1em 0;
+padding:0.5em 0 0 0;
 text-align:center;
 }
 div.list_update span.fa{
@@ -305,7 +305,7 @@ span.update_time{
 margin:0 0 0 0.25em;
 }
 div.list_filter{
-margin:0 0 2em 0;
+margin:1em 0 2em 0;
 }
 div.list_filter form{
 position:relative;
@@ -519,7 +519,7 @@ span.location_error{
 display:none;
 }
 div.form_items{
-margin:2em 0 1em 0;
+margin:2em 0 0 0;
 }
 div.form_item{
 padding:1em 0;
@@ -537,6 +537,42 @@ margin:0 0.25em 0 0;
 }
 div.item_quantity{
 float:right;
+}
+div.form_items_total{
+padding:1em 0;
+line-height:2em;
+text-align:left;
+text-transform:uppercase;
+border-top:1px solid lightgrey;
+}
+span.total_labels{
+display:none;
+width:14em;
+float:right;
+}
+span.total_labels > span{
+display:block;
+height:1.5em;
+width:50%;
+float:left;
+line-height:1em;
+text-align:center;
+font-size:50%;
+}
+span.item_totals{
+display:block;
+float:right;
+}
+span.item_totals > span{
+display:block;
+height:2em;
+width:3em;
+margin:0 2em;
+float:left;
+line-height:2em;
+text-align:center;
+color:grey;
+background:whitesmoke;
 }
 div.form_page div.form_buttons{
 margin:1em -0.5em;
