@@ -6,6 +6,7 @@ var App={
 	
 	//Function customisations
 	/*
+	initialise
 	handleBackButton
 	authenticateLogin
 	loadListData
@@ -244,27 +245,27 @@ var App={
 		
 	//Generate list HTML
 		buildList:function(){
-			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
-			if(!$.isEmptyObject(m)){
+			var l=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
+			if(!$.isEmptyObject(l)){
 				var i=0,s,h=[],d,n=new Date();
 				n.setHours(0);
 				n.setMinutes(0);
 				n.setSeconds(0);
-				while(i<Object.keys(m).length){
-					d=App.processDate(m[i].Delivery.DeliveryDate);
+				while(i<Object.keys(l).length){
+					d=App.processDate(l[i].Delivery.DeliveryDate);
 					if(d.time>n.getTime()){
-						c=(m[i].DeliveryStatus)?(' '+m[i].DeliveryStatus.toLowerCase()):'';
+						c=(l[i].DeliveryStatus)?(' '+l[i].DeliveryStatus.toLowerCase()):'';
 						s=App.template.listItem.split('-data-');
 						h.push(
 							s[0]+c+
 							s[1]+i+
-							s[2]+m[i].CustomerGeocode+
-							s[3]+m[i].CustomerName+
-							s[4]+m[i].CustomerSite+
-							s[5]+m[i].CustomerID+
-							s[6]+m[i].CustomerStreet+
-							s[7]+m[i].Delivery.DeliveryTime+
-							s[8]+m[i].Delivery.DeliveryInstructions+
+							s[2]+l[i].CustomerGeocode+
+							s[3]+l[i].CustomerName+
+							s[4]+l[i].CustomerSite+
+							s[5]+l[i].CustomerID+
+							s[6]+l[i].CustomerStreet+
+							s[7]+l[i].Delivery.DeliveryTime+
+							s[8]+l[i].Delivery.DeliveryInstructions+
 							s[9]
 						);
 					}
@@ -486,22 +487,23 @@ var App={
 	
 	//Generate item form
 		buildForm:function(id){
-			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'))[id],
+			var f=JSON.parse(window.localStorage.getItem(App.prefix+'-data'))[id],
 			s=App.template.itemForm.split('-data-'),
 			h=[];
 			h.push(
-				s[0]+m.CustomerName+
-				s[1]+m.CustomerSite+
-				s[2]+App.processDate(m.Delivery.DeliveryDate).dateFormat+
-				s[3]+m.Delivery.DeliveryTime+
-				s[4]+m.Delivery.Invoice+
-				s[5]+App.addFormItems(m.Delivery.DeliveryItems)+
+				s[0]+f.CustomerName+
+				s[1]+f.CustomerSite+
+				s[2]+App.processDate(f.Delivery.DeliveryDate).dateFormat+
+				s[3]+f.Delivery.DeliveryTime+
+				s[4]+f.Delivery.Invoice+
+				s[5]+App.addFormItems(f.Delivery.DeliveryItems)+
 				s[6]
 			);
 			$('.item_form').html(h.join(''));
+			$('.delivery_total').html(App.data.picker.total);
 		//Populate static form data
 			App.getGeocode(App.setGeocodeFormValue);
-			$('#form_invoice_value').val(m.Delivery.Invoice);
+			$('#form_invoice_value').val(f.Delivery.Invoice);
 			$('#form_index_value').val(id);
 		//Bind events for item quantity pickers
 			$('.item_form .picker_quantity').on('activate',App.activatePicker).on('touchstart mousedown',function(event){
@@ -550,7 +552,7 @@ var App={
 	//Generate HTML for form items
 		addFormItems:function(items){
 			var s=App.template.formItem.split('-data-'),
-			h=[];
+			h=[],t=0;
 			for(i=0;i<items.length;i++){
 				h.push(
 					s[0]+items[i].ProductCode+
@@ -564,12 +566,16 @@ var App={
 					s[8]+i+
 					s[9]
 				);
+				t+=parseInt(items[i].ProductQuantity);
 			}
+			App.data.picker.total=t;
 			return h.join('');
 		},
 		
 	//Activate item quantity picker for data entry
 		activatePicker:function(){
+			if($(this).parent().hasClass('delivery_quantity'))App.data.picker.activetype='delivery';
+			else App.data.picker.activetype='return';
 			if(!$(this).parent().hasClass('active')){
 				$('.item_picker').removeClass('active');
 				$(this).parent().addClass('active');
@@ -583,12 +589,14 @@ var App={
 	//Subtract from item picker quantity
 		activatePickerLess:function(){
 			$(this).siblings('input').val(Math.max(0,parseInt($(this).siblings('input').val())-1));
-			$(this).siblings('.picker_quantity').html($(this).siblings('input').val());
-			$(this).siblings('.picker_active').children(0).html($(this).siblings('input').val());
+			var n=parseInt($(this).siblings('input').val());
+			$(this).siblings('.picker_quantity').html(n);
+			$(this).siblings('.picker_active').children(0).html(n);
 			$(this).siblings('.picker_active').finish().fadeIn(0).show().delay(1000).fadeOut();
-			App.data.picker=$(this);
+			App.setPickerTotal();
+			App.data.picker.current=$(this);
 			App.data.picker.timer=setTimeout(function(){
-				$(App.data.picker).trigger('less');
+				$(App.data.picker.current).trigger('less');
 			},200);
 		},
 		
@@ -596,20 +604,31 @@ var App={
 		activatePickerMore:function(){
 			var m=parseInt($(this).parent().attr('data-picker-max'))||99;
 			$(this).siblings('input').val(Math.min(m,parseInt($(this).siblings('input').val())+1));
-			$(this).siblings('.picker_quantity').html($(this).siblings('input').val());
-			$(this).siblings('.picker_active').children(0).html($(this).siblings('input').val());
+			var n=parseInt($(this).siblings('input').val());
+			$(this).siblings('.picker_quantity').html(n);
+			$(this).siblings('.picker_active').children(0).html(n);
 			$(this).siblings('.picker_active').finish().fadeIn(0).show().delay(1000).fadeOut();
-			App.data.picker=$(this);
+			App.setPickerTotal();
+			App.data.picker.current=$(this);
 			App.data.picker.timer=setTimeout(function(){
-				$(App.data.picker).trigger('more');
+				$(App.data.picker.current).trigger('more');
 			},200);
+		},
+		
+	//Update picker total quantity
+		setPickerTotal:function(){
+			var t=0;
+			$('.'+App.data.picker.activetype+'_quantity > input').each(function(){
+				t+=parseInt($(this).val());
+			});
+			$('.'+App.data.picker.activetype+'_total').html(t);
 		},
 		
 	//Deactivate repeated addition or subtraction for picker 
 		deactivatePicker:function(){
 			clearTimeout(App.data.picker.timer);
-			App.data.picker.timer=null;
-			App.data.picker=null;
+			//App.data.picker.timer=null;
+			//App.data.picker.current=null;
 		},
 		
 	//Show signature overlay for form - https://github.com/szimek/signature_pad
@@ -790,9 +809,9 @@ var App={
 		
 	//Update item status in stored list data
 		updateItemStatus:function(id,status,process){
-			var m=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
-			m[id].DeliveryStatus=status;
-			window.localStorage.setItem(App.prefix+'-data',JSON.stringify(m));
+			var q=JSON.parse(window.localStorage.getItem(App.prefix+'-data'));
+			q[id].DeliveryStatus=status;
+			window.localStorage.setItem(App.prefix+'-data',JSON.stringify(q));
 			$('.list_item[data-item-index='+(id)+']').removeClass('pending submitted').addClass(status.toLowerCase());
 			if(typeof process=='function')(process)();
 		},
