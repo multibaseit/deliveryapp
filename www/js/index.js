@@ -46,23 +46,25 @@ var App={
 			noItems:'You have no deliveries scheduled',
 			updateError:'Your deliveries could not be updated due to a server error',
 			noMapAvailable:'Maps are not available for this delivery',
-			noGeolocation:'Maps cannot be used when your device is offline or location is turned off',
+			noGeolocation:'Maps cannot be used offline or if location services are unavailable',
 			googleError:'An error has occurred at Google Maps',
 			locationError:'Your location cannot be determined',
 			noCamera:'No camera is available',
 			cancelForm:'Information you have entered for this delivery will be discarded',
-			incompleteForm:'Please complete this form before saving'
+			incompleteForm:'You must obtain a signature to save this delivery'
 		},
 		
 	//Initialise application and show first page
 		initialise:function(){
-			//iOS stylesheet
+			//iOS status bar
 				if(/constructor/i.test(window.HTMLElement))$('body').addClass('ios');
+				else if(window.StatusBar)StatusBar.overlaysWebView(false);
 			//HTML templates
 				App.template.listItem=$('.list_items').html().replace(/\t|\r|\n/gi,'');
 				App.template.formItem=$('.form_items').html().replace(/\t|\r|\n/gi,'');
 				$('.form_items').html('-data-');
 				App.template.itemForm=$('.item_form').html().replace(/\t|\r|\n/gi,'');
+				App.template.directionStep=$('.directions_list').html().replace(/\t|\r|\n/gi,'');
 			//Login form handler
 				$('.login_form').on('submit',App.submitLogin);
 			//First page
@@ -393,6 +395,7 @@ var App={
 			$('.map_icon').addClass('loading');
 			$('.active_overlay').removeClass('active_overlay').hide();
 			$('.map_page').addClass('active_overlay').fadeIn();
+			$('body').addClass('no_scroll');
 			$('.map_page .close_button').off().on('click',App.hideMapPanel);
 			if(typeof google==='undefined'||typeof google.maps==='undefined'){
 				$('body').append('<script type="text/javascript" src="'+$('#google_script').attr('data-src')+'"></script>');
@@ -402,7 +405,9 @@ var App={
 		},
 		hideMapPanel:function(){
 			$('.map_page').removeClass('active_overlay').fadeOut(function(){
+				$('body').removeClass('no_scroll');
 				$('.map_icon').removeClass('loading');
+				$('.map_text_link,.map_directions').hide().removeClass('active');
 			});
 		},
 		
@@ -430,6 +435,7 @@ var App={
 				s.route(r,function(response,status){
 					if(status=='OK'){
 						$('.map_icon').removeClass('loading');
+						$('.map_text_link').show().addClass('active');
 						var m=new google.maps.Map($('#map_inner')[0],{
 								disableDefaultUI:true,
 								zoomControl:true,
@@ -438,11 +444,35 @@ var App={
 							g=new google.maps.DirectionsRenderer();
 						g.setDirections(response);
 						g.setMap(m);
+						App.getTextDirections(response.routes[0].legs[0]);
 					}
 					else if($('.map_page.active_overlay')[0])App.showMessage('error',App.message.googleError,App.hideMapPanel);
 				});
 			}
-			else if($('.map_page.active_overlay')[0])App.showMessage('error',App.message.noGeolocation,App.hideMapPanel);
+			else if($('.map_page').hasClass('active_overlay'))App.showMessage('error',App.message.noGeolocation,App.hideMapPanel);
+		},
+		
+	//Get text directions from map result
+		getTextDirections:function(directions){
+			var h=[],a=App.template.directionStep.split('-data-');
+			h.push(
+				a[0]+directions.distance.text+' ('+directions.duration.text+')'+
+				a[1]+
+				a[2]
+			);
+			for(s in directions.steps){
+				h.push(
+					a[0]+directions.steps[s].instructions+
+					a[1]+directions.steps[s].distance.text+
+					a[2]
+				)
+			}
+			$('.directions_list').html(h.join(''));
+			$('.map_text_link').off().on('click',function(){
+				$(this).toggleClass('active');
+				if($(this).hasClass('active'))$('.map_directions').fadeOut();
+				else $('.map_directions').fadeIn().scrollTop(0);
+			});
 		},
 		
 	//Get geocode from device
@@ -528,15 +558,21 @@ var App={
 					$(this).trigger('stop');
 				});
 			});
-		//Bind signature button event
+		//Bind signature events
 			$('#form_sign_button').off().on('click',function(){
 				$('.item_picker').removeClass('active');
 				App.showSignaturePanel();
 			});
-		//Bind photo button event
+			$('.signature_clear').off().on('click',function(){
+				App.clearSignaturePanel();
+			});
+		//Bind camera events
 			$('#form_photo_button').off().on('click',function(){
 				$('.item_picker').removeClass('active');
 				App.openCamera();
+			});
+			$('.photo_clear').off().on('click',function(){
+				App.clearPhotoPanel();
 			});
 		//Bind form + submit events
 			$('.item_form').off().on('submit',function(){
@@ -627,11 +663,9 @@ var App={
 	//Deactivate repeated addition or subtraction for picker 
 		deactivatePicker:function(){
 			clearTimeout(App.data.picker.timer);
-			//App.data.picker.timer=null;
-			//App.data.picker.current=null;
 		},
 		
-	//Show signature overlay for form - https://github.com/szimek/signature_pad
+	//Show signature overlay - https://github.com/szimek/signature_pad
 		showSignaturePanel:function(){
 			$('.active_overlay').removeClass('active_overlay').hide();
 			$('.signature_page .close_button').off().on('click',function(){
@@ -647,29 +681,34 @@ var App={
 					}
 				});
 			});
-			$('.signature_page').addClass('active_overlay').fadeIn(function(){
-				App.initialiseSignaturePanel();
-			});
+			App.initialiseSignaturePanel();
+			$('.signature_page').addClass('active_overlay').fadeIn();
 		},
 		
 	//Resize signature canvas element
 		initialiseSignaturePanel:function(){
 			App.data.signature.canvas=document.querySelector('canvas#signature_image');
-			$(App.data.signature.canvas).width($(document).width());
-			$(App.data.signature.canvas).height($(document).height());
-			App.data.signature.canvas.width=$(document).width();
-			App.data.signature.canvas.height=$(document).height();
+			var r=Math.max(window.devicePixelRatio||1,1);
+			$(App.data.signature.canvas).width($(document).width())*r;
+			$(App.data.signature.canvas).height($(document).height())*r;
+			App.data.signature.canvas.width=$(document).width()*r;
+			App.data.signature.canvas.height=$(document).height()*r;
+			App.data.signature.canvas.getContext("2d").scale(r,r);
 			App.data.signature.canvas=new SignaturePad(App.data.signature.canvas);
+			if($('#form_sign_value').val()!='')App.data.signature.canvas.fromDataURL($('#form_sign_value').val());
+		},
+		
+	//Clear signature panel
+		clearSignaturePanel:function(){
+			App.data.signature.canvas.clear();
 		},
 		
 	//Open camera for form
 		openCamera:function(){
-			if(window.navigator.camera){
+			if(window.navigator.camera&&$('#form_photo_value').val()=='No photo captured'){
 				window.navigator.camera.getPicture(
 					function(filename){
-						$('#form_photo_value').val(filename);
-						$('#form_photo_button').parent().addClass('completed');
-						App.showCameraPanel();
+						App.showCameraPanel(filename);
 					},
 					function(error){
 						App.showMessage('error',error);
@@ -683,12 +722,19 @@ var App={
 					}
 				);
 			}
+			else if(window.navigator.camera&&$('#form_photo_value').val()!='No photo captured'){
+				App.showCameraPanel($('#form_photo_value').val());
+			}
 			else App.showMessage('error',App.message.noCamera);
 		},
 		
 	//Show camera panel for photo annotation
-		showCameraPanel:function(){
-			$('.active_overlay').removeClass('active_overlay').hide();
+		showCameraPanel:function(filename){
+			if(filename){
+				$('#form_photo_value').val(filename);
+				$('#form_photo_button').parent().addClass('completed');
+			}
+			if(!$('.photo_page').hasClass('active_overlay'))$('.active_overlay').removeClass('active_overlay').hide();
 			if($('#form_photo_value').val()!='No photo captured')$('.photo_layout').css('background-image','url(\''+$('#form_photo_value').val()+'\')');
 			$('.photo_page .close_button').off().on('click',function(){
 				$('.photo_page').fadeOut(function(){
@@ -696,23 +742,35 @@ var App={
 						$('#form_annotation_value').val(App.data.photo.canvas.toDataURL());
 						App.data.photo.canvas.clear();
 					}
-					else $('#form_annotation_value').val('');
+					else $('#form_annotation_value').val('No annotation entered');
 				});
 			});
-			$('.photo_page').fadeIn(function(){
-				App.initialisePhotoPanel();
-			});
+			App.initialisePhotoPanel();
+			$('.photo_page').addClass('active_overlay').fadeIn();
 		},
 		
 	//Resize photo canvas element
 		initialisePhotoPanel:function(){
 			App.data.photo.canvas=document.querySelector('canvas#photo_image');
-			$(App.data.photo.canvas).width($(document).width());
-			$(App.data.photo.canvas).height($(document).height());
-			App.data.photo.canvas.width=$(document).width();
-			App.data.photo.canvas.height=$(document).height();
+			var r=Math.max(window.devicePixelRatio||1,1);
+			$(App.data.photo.canvas).width($(document).width())*r;
+			$(App.data.photo.canvas).height($(document).height())*r;
+			App.data.photo.canvas.width=$(document).width()*r;
+			App.data.photo.canvas.height=$(document).height()*r;
+			App.data.photo.canvas.getContext("2d").scale(r,r);
 			App.data.photo.canvas=new SignaturePad(App.data.photo.canvas);
 			App.data.photo.canvas.penColor='yellow';
+			if($('#form_annotation_value').val()!='No annotation entered')App.data.photo.canvas.fromDataURL($('#form_annotation_value').val());
+		},
+		
+	//Clear photo panel
+		clearPhotoPanel:function(){
+			App.data.photo.canvas.clear();
+			$('#form_annotation_value').val('');
+			$('#form_photo_value').val('No photo captured');
+			$('.photo_layout').css('background-image','none')
+			$('#form_photo_button').parent().removeClass('completed');
+			App.openCamera();
 		},
 		
 	//Close item form screen (cancel form)
