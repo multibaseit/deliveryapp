@@ -26,6 +26,21 @@ padding:1em;
 
 
 
+/*ITEM LIST - MAP*/
+
+
+ul.directions_list{
+padding:0;
+}
+li.directions_step{
+padding:1em;
+}
+span.directions_distance{
+right:1em;
+}
+
+
+
 /*ITEM FORM*/
 
 div.form_item{
