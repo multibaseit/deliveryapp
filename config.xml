@@ -25,6 +25,7 @@
 	<plugin name="cordova-plugin-geolocation" />
 	<plugin name="cordova-plugin-file-transfer" />
 	<plugin name="cordova-plugin-vibration" />
+	<plugin name="cordova-plugin-statusbar" />
 	<plugin name="cordova-plugin-network-information" />
 	<plugin name="cordova-plugin-device" />
 </widget>
